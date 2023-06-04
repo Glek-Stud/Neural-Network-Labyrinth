@@ -5,4 +5,4 @@ import random
 
 class GUI2D:
     def __init__(self):
-        pass
+        self.logger = set_logger("GUI 2D")
