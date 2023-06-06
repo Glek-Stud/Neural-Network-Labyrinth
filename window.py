@@ -17,7 +17,7 @@ HEIGHT = 600
 screen_info = pygame.display.Info()
 # WIDTH = screen_info.current_w
 # HEIGHT = screen_info.current_h
-
+flags = pygame.NOFRAME | pygame.DOUBLEBUF
 
 # colors
 BLACK = (0, 0, 0)
@@ -27,17 +27,18 @@ WHITE = (255, 255, 255)
 BLOCKSIZE = 20
 
 
+
 labyrinth_class = LabyrinthLogic(25)
 labyrinth_class.random_matrix()
 matrix = labyrinth_class.labyrinth
-print(matrix)
+
 
 
 # creating of class of window
 class Window:
     def __init__(self):
         # create window
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
 
         # name of window
         pygame.display.set_caption("Labyrinth")
@@ -66,8 +67,8 @@ class Window:
             # example
             for row in range(len(matrix)):
                 for col in range(len(matrix[row])):
-                    x = col * BLOCKSIZE
-                    y = row * BLOCKSIZE
+                    x = (WIDTH-len(matrix)*BLOCKSIZE)/2 + col * BLOCKSIZE
+                    y = (HEIGHT-len(matrix)*BLOCKSIZE)/2 + row * BLOCKSIZE
 
                     if matrix[row][col] == 1:
                         pygame.draw.rect(self.screen, BLACK, (x, y, BLOCKSIZE, BLOCKSIZE))
