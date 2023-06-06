@@ -15,7 +15,7 @@ class LabyrinthLogic:
     def get_border_labyrinth(self):
         border_labyrinth = []
         up_lid = [1] * (self.scale + 2)
-        up_lid[1] = 0
+        up_lid[1] = 2
         border_labyrinth.append(up_lid)
 
         for stage in self.labyrinth:
@@ -25,7 +25,7 @@ class LabyrinthLogic:
             border_labyrinth.append(copy_stage)
 
         down_lid = [1] * (self.scale + 2)
-        down_lid[-2] = 0
+        down_lid[-2] = 3
         border_labyrinth.append(down_lid)
         return border_labyrinth
 
