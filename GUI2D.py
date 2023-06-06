@@ -3,7 +3,7 @@ from utils import set_logger
 import pygame
 from pygame.locals import QUIT
 from LabyrinthLogic import LabyrinthLogic
-from config import HEIGHT, WHITE, BLACK, BLOCKSIZE
+from config import HEIGHT, WIDTH, WHITE, BLACK, BLOCKSIZE
 
 
 class GUI2D:
@@ -18,7 +18,7 @@ class GUI2D:
         self.labyrinth = self.labyrinth_class.get_border_labyrinth()
 
         # create window
-        self.screen = pygame.display.set_mode(((self.labyrinth_class.scale + 2) * BLOCKSIZE, HEIGHT))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT ), flags = pygame.NOFRAME | pygame.DOUBLEBUF)
 
         # name of window
         pygame.display.set_caption("Labyrinth")
@@ -30,8 +30,8 @@ class GUI2D:
         # example
         for row in range(len(self.labyrinth)):
             for col in range(len(self.labyrinth[row])):
-                x = col * BLOCKSIZE
-                y = row * BLOCKSIZE
+                x = (WIDTH - len(self.labyrinth) * BLOCKSIZE) / 2 + col * BLOCKSIZE
+                y = (HEIGHT - len(self.labyrinth) * BLOCKSIZE) / 2 + row * BLOCKSIZE
 
                 if self.labyrinth[row][col] == 1:
                     pygame.draw.rect(self.screen, BLACK, (x, y, BLOCKSIZE, BLOCKSIZE))

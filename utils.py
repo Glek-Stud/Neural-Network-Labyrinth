@@ -15,8 +15,8 @@ class Utils:
 
     @staticmethod
     def test():
-        logging.info("Проверка")
-        logging.error("Ошибка")
+        logging.info("Перевірка")
+        logging.error("Помилка")
         print(colFore.RED + 'some red text')
         print(colBack.GREEN + 'and with a green background')
         print(colStyle.BRIGHT + 'and in dim text')
@@ -40,6 +40,6 @@ if __name__ == '__main__':
     Utils().test()
     log2D = set_logger("GUI 2D")
     logLogic = set_logger("Logic")
-    log2D.info("Проверка")
-    logLogic.info("Проверка 2")
-    log2D.info("Проверка 3")
+    log2D.info("Перевірка")
+    logLogic.info("Перевірка 2")
+    log2D.info("Перевірка 3")

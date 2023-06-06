@@ -93,11 +93,8 @@ class Point:
 
 
 if __name__ == '__main__':
-    labyrinth_class = LabyrinthLogic(25)
+    labyrinth_class = LabyrinthLogic(5)
     labyrinth_class.random_matrix()
     point_class = labyrinth_class.get_point()
-    point_class.down()
-    point_class.down()
-    point_class.down()
     # point_class.switch()
     labyrinth_class.show_labyrinth()
