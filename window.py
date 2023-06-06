@@ -1,5 +1,7 @@
 import pygame
 from pygame.locals import *
+from LabyrinthLogic import *
+
 
 # initialisation of pygame
 pygame.init()
@@ -7,29 +9,32 @@ pygame.init()
 
 # size of window
 
-# WIDTH = 1920
-# HEIGHT = 1080
+WIDTH = 800
+HEIGHT = 600
 
 #for full screen
 
 screen_info = pygame.display.Info()
-WIDTH = screen_info.current_w
-HEIGHT = screen_info.current_h
+# WIDTH = screen_info.current_w
+# HEIGHT = screen_info.current_h
 
 
 # colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
+# size of block
+BLOCKSIZE = 20
 
 
-# creating button
-button = pygame.Rect(800, 500, 50, 20)
+labyrinth_class = LabyrinthLogic(25)
+labyrinth_class.random_matrix()
+matrix = labyrinth_class.labyrinth
+print(matrix)
 
 
 # creating of class of window
 class Window:
-
     def __init__(self):
         # create window
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -41,8 +46,6 @@ class Window:
         self.clock = pygame.time.Clock()
 
 
-
-
     def run(self):
         
         running = True
@@ -52,21 +55,26 @@ class Window:
                 if event.type == QUIT:
                     running = False
 
+
                 # if was clicked
-                elif event.type == MOUSEBUTTONDOWN and event.button == 1:
-                    if button.collidepoint(event.pos):
-                        print("click))))")
+                # elif event.type == MOUSEBUTTONDOWN and event.button == 1:
+                    # if button.collidepoint(event.pos):
+                    #     print("click))))")
             self.screen.fill(WHITE)
 
             # some code here
             # example
-            pygame.draw.rect(self.screen, BLACK, button)
+            for row in range(len(matrix)):
+                for col in range(len(matrix[row])):
+                    x = col * BLOCKSIZE
+                    y = row * BLOCKSIZE
 
-
-
+                    if matrix[row][col] == 1:
+                        pygame.draw.rect(self.screen, BLACK, (x, y, BLOCKSIZE, BLOCKSIZE))
+                    else:
+                        pygame.draw.rect(self.screen, WHITE, (x, y, BLOCKSIZE, BLOCKSIZE))
             pygame.display.update()
             # fps on screen
             self.clock.tick(60)
-
 
 pygame.quit()
