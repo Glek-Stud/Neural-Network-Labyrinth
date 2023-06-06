@@ -1,15 +1,12 @@
 from utils import Utils
 from GUI2D import GUI2D
-from window import Window
+
 
 # < Функція запуску основної програми >
 def start_function():
     Utils()
-    GUI2D()
+    GUI2D().run()
 
-
-window = Window()
-window.run()
 
 # Завершение Pygame
 
