@@ -41,7 +41,7 @@ class LabyrinthLogic:
     def random_matrix(self):
         for y in range(self.scale):
             for x in range(self.scale):
-                self.labyrinth[y][x] = random.randint(0, 1)
+                self.labyrinth[y][x] = random.choice([0, 4])
 
 
 class Point:
@@ -86,7 +86,7 @@ class Point:
         if self.labyrinth_logic.labyrinth[self.index_y][self.index_x]:
             self.labyrinth_logic.labyrinth[self.index_y][self.index_x] = 0
         else:
-            self.labyrinth_logic.labyrinth[self.index_y][self.index_x] = 1
+            self.labyrinth_logic.labyrinth[self.index_y][self.index_x] = 4
 
     def get_point(self):
         return self.labyrinth_logic.labyrinth[self.index_y][self.index_x]

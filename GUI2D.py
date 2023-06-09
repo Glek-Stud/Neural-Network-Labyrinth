@@ -16,6 +16,10 @@ class GUI2D:
         self.labyrinth_class.random_matrix()
         self.labyrinth = self.labyrinth_class.get_border_labyrinth()
 
+        #CIRCLE
+        self.circle_radius = BLOCK_SIZE / 2 - 1
+        self.radius_decreasing = True
+
         # create window
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT), flags=pygame.NOFRAME | pygame.DOUBLEBUF)
 
@@ -87,15 +91,51 @@ class GUI2D:
             pygame.draw.line(self.screen, (255, 255, 255), (WIDTH - 30, 73), (WIDTH - 5, 73), 1)
 
     def draw_labyrinth(self):
+
         for row in range(len(self.labyrinth)):
             for col in range(len(self.labyrinth[row])):
                 x = (col + 1) * BLOCK_SIZE  # (WIDTH - len(self.labyrinth) * BLOCKSIZE) / 2
                 y = (row + 1) * BLOCK_SIZE  # (HEIGHT - len(self.labyrinth) * BLOCKSIZE) / 2
 
                 if self.labyrinth[row][col] == 1:
-                    pygame.draw.rect(self.screen, BLACK, (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                    pygame.draw.rect(self.screen, (44, 35, 59), (x, y, BLOCK_SIZE, BLOCK_SIZE), 2)
+                    pygame.draw.rect(self.screen, (69, 62, 73), (x + 2, y + 2, BLOCK_SIZE - 4, (BLOCK_SIZE - 2) / 3))
+                    pygame.draw.rect(self.screen, (77, 76, 131), (x + 2, y + 8, BLOCK_SIZE - 4, (BLOCK_SIZE - 2) / 3))
+                    pygame.draw.rect(self.screen, (107, 132, 175), (x + 2, y + 14, BLOCK_SIZE - 4, (BLOCK_SIZE - 2) / 3))
+
+                elif self.labyrinth[row][col] == 2:
+                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
+
+                    pygame.draw.circle(self.screen, (14, 245, 73), (x + (BLOCK_SIZE / 2), y + (BLOCK_SIZE / 2)),
+                                       self.circle_radius)
+                elif self.labyrinth[row][col] == 3:
+                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
+
+                    pygame.draw.circle(self.screen, (245, 28, 12), (x + (BLOCK_SIZE / 2), y + (BLOCK_SIZE / 2)),
+                                       self.circle_radius)
+
+                elif self.labyrinth[row][col] == 4:
+                    pygame.draw.rect(self.screen, (44, 35, 59), (x, y, BLOCK_SIZE, BLOCK_SIZE), 2)
+                    pygame.draw.rect(self.screen, (226, 180, 126), (x + 2, y + 2, BLOCK_SIZE - 4, 7))
+                    pygame.draw.rect(self.screen, (218, 148, 109), (x + 2, y + 8, BLOCK_SIZE - 4, 3))
+                    pygame.draw.rect(self.screen, (196, 113, 95), (x + 2, y + 11, BLOCK_SIZE - 4, 3))
+                    pygame.draw.rect(self.screen, (161, 82, 88), (x + 2, y + 14, BLOCK_SIZE - 4, 5))
+
                 else:
-                    pygame.draw.rect(self.screen, WHITE, (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
+
 
     def draw_button(self):
         button_width = (LABYRINTH_SIZE - BLOCK_SIZE * 2 + 10) / len(self.buttons)
@@ -235,6 +275,17 @@ class GUI2D:
 
             # some code here
             self.draw()
+
+            #CIRCLE
+            if self.radius_decreasing:
+                self.circle_radius -= 0.1
+                if self.circle_radius <= 0:  # если радиус достиг 0 или меньше, меняем направление
+                    self.radius_decreasing = False
+
+            else:
+                self.circle_radius += 0.1
+                if self.circle_radius >= BLOCK_SIZE / 2 - 1:  # если радиус достиг максимального значения, меняем направление
+                    self.radius_decreasing = True
 
             pygame.display.update()
             # fps on screen
