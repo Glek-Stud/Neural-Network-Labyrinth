@@ -13,7 +13,7 @@ class GUI2D:
     def __init__(self, buttons):
         self.logger = set_logger("GUI 2D")
         self.labyrinth_class = LabyrinthLogic(25)
-        self.labyrinth_class.random_matrix()
+        self.labyrinth_class.generate_labyrinth()
         self.labyrinth = self.labyrinth_class.get_border_labyrinth()
 
         #CIRCLE

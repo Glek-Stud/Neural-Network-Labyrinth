@@ -43,6 +43,26 @@ class LabyrinthLogic:
             for x in range(self.scale):
                 self.labyrinth[y][x] = random.choice([0, 4])
 
+    def generate_labyrinth(self, x=0, y=0):
+        if x == 0 and y == 0:
+            for i in range(self.scale):
+                for j in range(self.scale):
+                    self.labyrinth[i][j] = 4
+
+        self.labyrinth[y][x] = 0
+
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        random.shuffle(directions)
+
+        for dx, dy in directions:
+            new_x, new_y = x + 2 * dx, y + 2 * dy
+
+            if 0 <= new_x < self.scale and 0 <= new_y < self.scale and self.labyrinth[new_y][new_x] == 4:
+                self.labyrinth[new_y][new_x] = 0
+                self.labyrinth[y + dy][x + dx] = 0
+                self.generate_labyrinth(new_x, new_y)
+
 
 class Point:
     def __init__(self, labyrinth_logic: LabyrinthLogic, index_y: int, index_x: int):
