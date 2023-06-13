@@ -3,18 +3,27 @@ from utils import set_logger
 import pygame
 from pygame.locals import QUIT, MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP
 from LabyrinthLogic import LabyrinthLogic
+from LabyrinthLogic import Point
 from config import HEIGHT, WIDTH, LABYRINTH_SIZE, BUTTON_HEIGHT_SIZE, WHITE, BLACK, BLOCK_SIZE, GRAY, TITLE, DARK_GRAY
+
+
 
 
 class GUI2D:
     # initialisation of pygame
     pygame.init()
 
+
     def __init__(self, buttons):
         self.logger = set_logger("GUI 2D")
         self.labyrinth_class = LabyrinthLogic(25)
         self.labyrinth_class.generate_labyrinth()
         self.labyrinth = self.labyrinth_class.get_border_labyrinth()
+
+        self.player = Point(self.labyrinth_class, 2,0)
+
+        for i in self.labyrinth:
+            print(i)
 
         #CIRCLE
         self.circle_radius = BLOCK_SIZE / 2 - 1
@@ -56,6 +65,11 @@ class GUI2D:
         self.mouse_in_button = None
 
         self.mouse_in_labyrinth = None
+
+        #     player
+        self.x = 1
+        self.y = 0
+
 
     # <--- Draw all element --->
     def draw(self):
@@ -128,6 +142,23 @@ class GUI2D:
                     pygame.draw.rect(self.screen, (218, 148, 109), (x + 2, y + 8, BLOCK_SIZE - 4, 3))
                     pygame.draw.rect(self.screen, (196, 113, 95), (x + 2, y + 11, BLOCK_SIZE - 4, 3))
                     pygame.draw.rect(self.screen, (161, 82, 88), (x + 2, y + 14, BLOCK_SIZE - 4, 5))
+
+
+                elif self.labyrinth[row][col] == 8:
+                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
+                    pygame.draw.line(self.screen, (255,0,0), (x,y+BLOCK_SIZE/2), (x+BLOCK_SIZE+BLOCK_SIZE, y+BLOCK_SIZE/2), 5)
+
+                elif self.labyrinth[row][col] == 9:
+                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
+                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
+                    pygame.draw.line(self.screen, (255,0,0), (x+BLOCK_SIZE/2,y), (x+BLOCK_SIZE/2, y+BLOCK_SIZE*10), 5)
 
                 else:
                     pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
@@ -250,6 +281,61 @@ class GUI2D:
             HEIGHT = LABYRINTH_SIZE + BUTTON_HEIGHT_SIZE + BLOCK_SIZE
             self.__init__(self.buttons)
 
+
+    def drawPlayer(self, key):
+        # # CIRCLE
+        # if self.radius_decreasing:
+        #     self.circle_radius -= 0.1
+        #     if self.circle_radius <= 0:  # если радиус достиг 0 или меньше, меняем направление
+        #         self.radius_decreasing = False
+        #
+        # else:
+        #     self.circle_radius += 0.1
+        #     if self.circle_radius >= BLOCK_SIZE / 2 - 1:  # если радиус достиг максимального значения, меняем направление
+        #         self.radius_decreasing = True
+
+
+
+        # player move
+        if key[pygame.K_UP]:
+            if self.player.up(self.x, self.y, self.labyrinth):
+                if self.labyrinth[self.y-1][self.x] ==9:
+
+                    self.labyrinth[self.y][self.x] = 0
+                else:
+                    self.labyrinth[self.y][self.x] = 9
+                self.labyrinth[self.y - 1][self.x] = 2
+                self.y -= 1
+
+
+        if key[pygame.K_DOWN]:
+            if self.player.down(self.x, self.y, self.labyrinth):
+                if self.labyrinth[self.y+1][self.x] == 9 :
+                    self.labyrinth[self.y][self.x] = 0
+                else:
+                    self.labyrinth[self.y][self.x] = 9
+
+                self.labyrinth[self.y+1][self.x] = 2
+                self.y+=1
+
+        if key[pygame.K_RIGHT]:
+            if self.player.right(self.x, self.y, self.labyrinth):
+                if self.labyrinth[self.y][self.x+1] == 8:
+                    self.labyrinth[self.y][self.x] = 0
+                else:
+                    self.labyrinth[self.y][self.x] = 8
+                self.labyrinth[self.y][self.x + 1] = 2
+                self.x+=1
+
+        if key[pygame.K_LEFT]:
+            if self.player.left(self.x, self.y, self.labyrinth):
+                if self.labyrinth[self.y][self.x-1] == 8:
+                    self.labyrinth[self.y][self.x] = 0
+                else:
+                    self.labyrinth[self.y][self.x] = 8
+                self.labyrinth[self.y][self.x - 1] = 2
+                self.x-=1
+
     # <--- Run game --->
     def run(self):
         while self.run_bool:
@@ -270,22 +356,15 @@ class GUI2D:
                 elif event.type == MOUSEBUTTONUP:
                     self.mouse_unclicked(event)
 
-                if event.type == pygame.KEYDOWN:
-                    self.key_clicked(event)
+                # if event.type == pygame.KEYDOWN:
+                #     self.key_clicked(event)
+                key = pygame.key.get_pressed()
+                self.drawPlayer(key)
 
             # some code here
             self.draw()
 
-            #CIRCLE
-            if self.radius_decreasing:
-                self.circle_radius -= 0.1
-                if self.circle_radius <= 0:  # если радиус достиг 0 или меньше, меняем направление
-                    self.radius_decreasing = False
 
-            else:
-                self.circle_radius += 0.1
-                if self.circle_radius >= BLOCK_SIZE / 2 - 1:  # если радиус достиг максимального значения, меняем направление
-                    self.radius_decreasing = True
 
             pygame.display.update()
             # fps on screen

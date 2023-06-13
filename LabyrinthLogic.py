@@ -72,29 +72,37 @@ class Point:
         self.index_x = index_x
         self.index_y = index_y
 
-    def up(self):
-        if self.index_y - 1 < 0:
-            return False
-        self.index_y -= 1
-        return True
+    def up(self, x,y, labyrinth):
+        if labyrinth[y - 1][x] != 4 and labyrinth[y - 1][x] !=1:
+            print("UP TRUE")
 
-    def down(self):
-        if self.index_y + 1 >= self.labyrinth_logic.scale:
-            return False
-        self.index_y += 1
-        return True
+            return True
+        print("UP FALSE")
+        return False
 
-    def left(self):
-        if self.index_x - 1 < 0:
-            return False
-        self.index_x -= 1
-        return True
+    def down(self, x,y, labyrinth):
+        if labyrinth[y + 1][x] != 4 and labyrinth[y + 1][x] !=1:
 
-    def right(self):
-        if self.index_x + 1 >= self.labyrinth_logic.scale:
-            return False
-        self.index_x += 1
-        return True
+            print("DOWN TRUE")
+            return True
+        print("DOWN FALSE")
+        return False
+
+    def left(self, x,y, labyrinth):
+        if labyrinth[y][x-1] != 4 and labyrinth[y][x-1] !=1:
+            print("LEFT TRUE")
+
+            return True
+        print("LEFT FALSE")
+        return False
+
+    def right(self, x,y, labyrinth):
+        if labyrinth[y][x+1] != 4 and labyrinth[y][x+1] !=1:
+            print("RIGHT TRUE")
+
+            return True
+        print("RIGHT FALSE")
+        return False
 
     def turn_on(self):
         self.labyrinth_logic.labyrinth[self.index_y][self.index_x] = 1
@@ -110,6 +118,8 @@ class Point:
 
     def get_point(self):
         return self.labyrinth_logic.labyrinth[self.index_y][self.index_x]
+
+
 
 
 if __name__ == '__main__':
