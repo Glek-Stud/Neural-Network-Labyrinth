@@ -5,32 +5,38 @@ import random
 class LabyrinthLogic:
 
     def __init__(self, scale: int = 5):
+        self.border_labyrinth = []
         self.logger = set_logger("Labyrinth Logic")
         self.scale = scale
         self.labyrinth = [[0] * scale for _ in range(scale)]
 
-    def get_point(self, index_y: int = 0, index_x: int = 0):
-        return Point(self, index_y, index_x)
+    def get_point(self, y: int = 0, x: int = 1):
+        return Point(self, y, x)
 
-    def get_border_labyrinth(self):
-        border_labyrinth = []
+    def get_player(self):
+        return Player(self.get_point(), self.border_labyrinth)
+
+    def update_border_labyrinth(self):
+
+        self.border_labyrinth.clear()
         up_lid = [1] * (self.scale + 2)
         up_lid[1] = 2
-        border_labyrinth.append(up_lid)
+        self.border_labyrinth.append(up_lid)
 
         for stage in self.labyrinth:
             copy_stage = stage.copy()
             copy_stage.insert(0, 1)
             copy_stage.append(1)
-            border_labyrinth.append(copy_stage)
+            self.border_labyrinth.append(copy_stage)
 
         down_lid = [1] * (self.scale + 2)
         down_lid[-2] = 3
-        border_labyrinth.append(down_lid)
-        return border_labyrinth
+        self.border_labyrinth.append(down_lid)
+
 
     def show_labyrinth(self):
-        for y in self.get_border_labyrinth():
+        self.update_border_labyrinth()
+        for y in self.border_labyrinth:
             for x in y:
                 if x:
                     print("██", end="")
@@ -65,61 +71,105 @@ class LabyrinthLogic:
 
 
 class Point:
-    def __init__(self, labyrinth_logic: LabyrinthLogic, index_y: int, index_x: int):
-        assert 0 <= index_x < labyrinth_logic.scale, "Значення індексу x не вірне"
-        assert 0 <= index_y < labyrinth_logic.scale, "Значення індексу y не вірне"
+    def __init__(self, labyrinth_logic: LabyrinthLogic, y: int, x: int):
+        assert 0 <= x < labyrinth_logic.scale, "Значення індексу x не вірне"
+        assert 0 <= y < labyrinth_logic.scale, "Значення індексу y не вірне"
         self.labyrinth_logic = labyrinth_logic
-        self.index_x = index_x
-        self.index_y = index_y
+        self.x = x
+        self.y = y
+        self.finish = False
+    def up(self):
+        if self.labyrinth_logic.border_labyrinth[self.y-1][self.x] == 4 or self.labyrinth_logic.border_labyrinth[self.y - 1][self.x] ==1:
+            return False
 
-    def up(self, x,y, labyrinth):
-        if labyrinth[y - 1][x] != 4 and labyrinth[y - 1][x] !=1:
-            print("UP TRUE")
+        self.y -= 1
+        return True
 
-            return True
-        print("UP FALSE")
-        return False
+    def down(self):
+        if self.labyrinth_logic.border_labyrinth[self.y+1][self.x] == 4 or self.labyrinth_logic.border_labyrinth[self.y + 1][self.x] ==1:
+            return False
+        if self.labyrinth_logic.border_labyrinth[self.y + 1][self.x] == 3:
+            self.finish=True
+        self.y += 1
+        return True
 
-    def down(self, x,y, labyrinth):
-        if labyrinth[y + 1][x] != 4 and labyrinth[y + 1][x] !=1:
+    def left(self):
+        if self.labyrinth_logic.border_labyrinth[self.y][self.x-1] == 4 or self.labyrinth_logic.border_labyrinth[self.y][self.x-1] ==1:
+            return False
+        if self.labyrinth_logic.border_labyrinth[self.y][self.x-1] == 3:
+            self.finish=True
+        self.x -= 1
+        return True
 
-            print("DOWN TRUE")
-            return True
-        print("DOWN FALSE")
-        return False
+    def right(self):
+        if self.labyrinth_logic.border_labyrinth[self.y][self.x+1] == 4 or self.labyrinth_logic.border_labyrinth[self.y][self.x+1] ==1:
+            return False
+        if self.labyrinth_logic.border_labyrinth[self.y ][self.x+ 1] == 3:
+            self.finish=True
+        self.x += 1
+        return True
 
-    def left(self, x,y, labyrinth):
-        if labyrinth[y][x-1] != 4 and labyrinth[y][x-1] !=1:
-            print("LEFT TRUE")
-
-            return True
-        print("LEFT FALSE")
-        return False
-
-    def right(self, x,y, labyrinth):
-        if labyrinth[y][x+1] != 4 and labyrinth[y][x+1] !=1:
-            print("RIGHT TRUE")
-
-            return True
-        print("RIGHT FALSE")
-        return False
+    def get_xy(self):
+        return [self.y, self.x]
 
     def turn_on(self):
-        self.labyrinth_logic.labyrinth[self.index_y][self.index_x] = 1
+        self.labyrinth_logic.labyrinth[self.y][self.x] = 1
 
     def turn_off(self):
-        self.labyrinth_logic.labyrinth[self.index_y][self.index_x] = 0
+        self.labyrinth_logic.labyrinth[self.y][self.x] = 0
 
     def switch(self):
-        if self.labyrinth_logic.labyrinth[self.index_y][self.index_x]:
-            self.labyrinth_logic.labyrinth[self.index_y][self.index_x] = 0
+        if self.labyrinth_logic.labyrinth[self.y][self.x]:
+            self.labyrinth_logic.labyrinth[self.y][self.x] = 0
         else:
-            self.labyrinth_logic.labyrinth[self.index_y][self.index_x] = 4
+            self.labyrinth_logic.labyrinth[self.y][self.x] = 4
 
     def get_point(self):
-        return self.labyrinth_logic.labyrinth[self.index_y][self.index_x]
+        return self.labyrinth_logic.labyrinth[self.y][self.x]
 
 
+class Player:
+    def __init__(self, point, labyrinth):
+        self.point = point
+        self.labyrinth = labyrinth
+    def moveUp(self):
+        if self.point.up():
+            if self.labyrinth[self.point.y][self.point.x] == 9:
+
+                self.labyrinth[self.point.y+1][self.point.x] = 0
+            else:
+                self.labyrinth[self.point.y+1][self.point.x] = 9
+            self.labyrinth[self.point.y][self.point.x] = 2
+
+
+    def moveDown(self):
+
+        if self.point.down():
+
+            if self.labyrinth[self.point.y][self.point.x] == 9:
+                self.labyrinth[self.point.y-1][self.point.x] = 0
+            else:
+                self.labyrinth[self.point.y-1][self.point.x] = 9
+
+            self.labyrinth[self.point.y][self.point.x] = 2
+
+
+    def moveRight(self):
+        if self.point.right():
+            if self.labyrinth[self.point.y][self.point.x] == 9:
+                self.labyrinth[self.point.y][self.point.x-1] = 0
+            else:
+                self.labyrinth[self.point.y][self.point.x-1] = 9
+            self.labyrinth[self.point.y][self.point.x] = 2
+
+
+    def moveLeft(self):
+        if self.point.left():
+            if self.labyrinth[self.point.y][self.point.x] == 9:
+                self.labyrinth[self.point.y][self.point.x+1] = 0
+            else:
+                self.labyrinth[self.point.y][self.point.x+1] = 9
+            self.labyrinth[self.point.y][self.point.x] = 2
 
 
 if __name__ == '__main__':

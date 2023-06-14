@@ -18,12 +18,13 @@ class GUI2D:
         self.logger = set_logger("GUI 2D")
         self.labyrinth_class = LabyrinthLogic(25)
         self.labyrinth_class.generate_labyrinth()
-        self.labyrinth = self.labyrinth_class.get_border_labyrinth()
+        self.labyrinth_class.update_border_labyrinth()
+        self.labyrinth = self.labyrinth_class.border_labyrinth
 
-        self.player = Point(self.labyrinth_class, 2,0)
 
-        for i in self.labyrinth:
-            print(i)
+        self.player = self.labyrinth_class.get_player()
+
+
 
         #CIRCLE
         self.circle_radius = BLOCK_SIZE / 2 - 1
@@ -144,21 +145,9 @@ class GUI2D:
                     pygame.draw.rect(self.screen, (161, 82, 88), (x + 2, y + 14, BLOCK_SIZE - 4, 5))
 
 
-                elif self.labyrinth[row][col] == 8:
-                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
-                    pygame.draw.line(self.screen, (255,0,0), (x,y+BLOCK_SIZE/2), (x+BLOCK_SIZE+BLOCK_SIZE, y+BLOCK_SIZE/2), 5)
 
                 elif self.labyrinth[row][col] == 9:
-                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
-                    pygame.draw.line(self.screen, (255,0,0), (x+BLOCK_SIZE/2,y), (x+BLOCK_SIZE/2, y+BLOCK_SIZE), 5)
+                    pygame.draw.rect(self.screen, (255, 0, 0), (x, y, BLOCK_SIZE, BLOCK_SIZE))
 
                 else:
                     pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
@@ -248,8 +237,9 @@ class GUI2D:
                 self.buttons[self.mouse_in_button]["func"]()
 
             if self.mouse_in_labyrinth is not None:
-                self.labyrinth_class.get_point(self.mouse_in_labyrinth[0], self.mouse_in_labyrinth[1]).switch()
-                self.labyrinth = self.labyrinth_class.get_border_labyrinth()
+                if self.player.point.get_xy() ==  [0,1]:
+                    self.labyrinth_class.get_point(self.mouse_in_labyrinth[0], self.mouse_in_labyrinth[1]).switch()
+                    self.labyrinth_class.update_border_labyrinth()
 
     def mouse_unclicked(self, event):
         if event.button == 1:
@@ -281,74 +271,29 @@ class GUI2D:
             HEIGHT = LABYRINTH_SIZE + BUTTON_HEIGHT_SIZE + BLOCK_SIZE
             self.__init__(self.buttons)
 
-    def moveUp(self):
-        if self.player.up(self.x, self.y, self.labyrinth):
-            if self.labyrinth[self.y - 1][self.x] == 9:
 
-                self.labyrinth[self.y][self.x] = 0
-            else:
-                self.labyrinth[self.y][self.x] = 9
-            self.labyrinth[self.y - 1][self.x] = 2
-            self.y -= 1
-
-    def moveDown(self):
-        if self.player.down(self.x, self.y, self.labyrinth):
-            if self.labyrinth[self.y + 1][self.x] == 9:
-                self.labyrinth[self.y][self.x] = 0
-            else:
-                self.labyrinth[self.y][self.x] = 9
-
-            self.labyrinth[self.y + 1][self.x] = 2
-            self.y += 1
-
-    def moveRight(self):
-        if self.player.right(self.x, self.y, self.labyrinth):
-            if self.labyrinth[self.y][self.x + 1] == 8:
-                self.labyrinth[self.y][self.x] = 0
-            else:
-                self.labyrinth[self.y][self.x] = 8
-            self.labyrinth[self.y][self.x + 1] = 2
-            self.x += 1
-
-    def moveLeft(self):
-        if self.player.left(self.x, self.y, self.labyrinth):
-            if self.labyrinth[self.y][self.x - 1] == 8:
-                self.labyrinth[self.y][self.x] = 0
-            else:
-                self.labyrinth[self.y][self.x] = 8
-            self.labyrinth[self.y][self.x - 1] = 2
-            self.x -= 1
     def drawPlayer(self, key):
-        # # CIRCLE
-        # if self.radius_decreasing:
-        #     self.circle_radius -= 0.1
-        #     if self.circle_radius <= 0:  # если радиус достиг 0 или меньше, меняем направление
-        #         self.radius_decreasing = False
-        #
-        # else:
-        #     self.circle_radius += 0.1
-        #     if self.circle_radius >= BLOCK_SIZE / 2 - 1:  # если радиус достиг максимального значения, меняем направление
-        #         self.radius_decreasing = True
-
-
 
         # player move
         if key[pygame.K_UP]:
-            self.moveUp()
 
+            self.player.moveUp()
 
         if key[pygame.K_DOWN]:
-            self.moveDown()
+            self.player.moveDown()
 
         if key[pygame.K_RIGHT]:
-            self.moveRight()
+            self.player.moveRight()
 
         if key[pygame.K_LEFT]:
-            self.moveLeft()
+            self.player.moveLeft()
+
 
     # <--- Run game --->
     def run(self):
         while self.run_bool:
+
+
             # to detect some events
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -370,6 +315,10 @@ class GUI2D:
                 #     self.key_clicked(event)
                 key = pygame.key.get_pressed()
                 self.drawPlayer(key)
+
+                if self.player.point.finish:
+                    pass
+
 
             # some code here
             self.draw()
