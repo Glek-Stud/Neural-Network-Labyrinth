@@ -3,35 +3,27 @@ from utils import set_logger
 import pygame
 from pygame.locals import QUIT, MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP
 from LabyrinthLogic import LabyrinthLogic
-from LabyrinthLogic import Point
-from config import HEIGHT, WIDTH, LABYRINTH_SIZE, BUTTON_HEIGHT_SIZE, WHITE, BLACK, BLOCK_SIZE, GRAY, TITLE, DARK_GRAY
-
-
+from config import WHITE, BLACK, GRAY, TITLE, DARK_GRAY, BUTTONS, FRAME
 
 
 class GUI2D:
     # initialisation of pygame
     pygame.init()
 
-
-    def __init__(self, buttons):
+    def __init__(self, scale=25, size=20):
         self.logger = set_logger("GUI 2D")
-        self.labyrinth_class = LabyrinthLogic(25)
+
+        self.labyrinth_class = LabyrinthLogic(scale)
         self.labyrinth_class.generate_labyrinth()
         self.labyrinth_class.update_border_labyrinth()
         self.labyrinth = self.labyrinth_class.border_labyrinth
-
-
         self.player = self.labyrinth_class.get_player()
 
-
-
-        #CIRCLE
-        self.circle_radius = BLOCK_SIZE / 2 - 1
-        self.radius_decreasing = True
-
         # create window
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), flags=pygame.NOFRAME | pygame.DOUBLEBUF)
+        self.size = size
+        self.width, self.height, self.button_height_size, self.labyrinth_size = [0] * 4
+        self.screen, self.font, self.bold_font = [None] * 3
+        self.init_size_component()
 
         # name of window
         pygame.display.set_caption("Labyrinth")
@@ -47,9 +39,10 @@ class GUI2D:
         # detect mouse on panel
         self.detect = False
 
+        # CIRCLE
+        self.circle_radius = self.size / 2 - 1
         # title
-        self.font = pygame.font.Font(None, int(BLOCK_SIZE * 1.4))
-        self.bold_font = pygame.font.Font(None, int(BLOCK_SIZE * 1.6))
+
         self.text_surface = self.font.render(TITLE, True, WHITE)
         self.rotated_surface = pygame.transform.rotate(self.text_surface, -90)
 
@@ -62,15 +55,23 @@ class GUI2D:
         self.hideButtonState = "normal"
 
         self.run_bool = True
-        self.buttons = buttons
+        self.buttons = BUTTONS
         self.mouse_in_button = None
 
         self.mouse_in_labyrinth = None
 
-        #     player
-        self.x = 1
-        self.y = 0
+    def init_size_component(self):
+        # size of window
+        self.labyrinth_size = (25 + 2 * 2) * self.size
+        self.button_height_size = self.size * 4
 
+        self.width = self.labyrinth_size + FRAME
+        self.height = self.labyrinth_size + self.button_height_size + self.size
+
+        self.screen = pygame.display.set_mode((self.width, self.height), flags=pygame.NOFRAME | pygame.DOUBLEBUF)
+
+        self.font = pygame.font.Font(None, int(self.size * 1.4))
+        self.bold_font = pygame.font.Font(None, int(self.size * 1.6))
 
     # <--- Draw all element --->
     def draw(self):
@@ -83,117 +84,103 @@ class GUI2D:
         self.draw_panel()
 
     def draw_panel(self):
-        # pygame.draw.rect(self.screen, GRAY, (WIDTH - 5, 0, 10, HEIGHT), border_radius=40)
-        pygame.draw.rect(self.screen, GRAY, (WIDTH - self.currentSize, -2, 10 + self.currentSize, HEIGHT + 4),
+        # pygame.draw.rect(self.screen, GRAY, (self.width - 5, 0, 10, self.height), border_radius=40)
+        pygame.draw.rect(self.screen, GRAY, (self.width - self.currentSize, -2, 10 + self.currentSize, self.height + 4),
                          border_radius=40)
 
         # if mouse on panel
         if self.detect:
             # type title
             self.screen.blit(self.rotated_surface,
-                             (WIDTH - 30, int(HEIGHT / 2 + self.rotated_surface.get_width() / 2)))
+                             (self.width - 30, int(self.height / 2 + self.rotated_surface.get_width() / 2)))
 
             # draw buttons
 
             # button close
-            pygame.draw.rect(self.screen, self.colorOfButtonClose, (WIDTH - 35, 20, 35, 35))
+            pygame.draw.rect(self.screen, self.colorOfButtonClose, (self.width - 35, 20, 35, 35))
 
-            pygame.draw.line(self.screen, (255, 255, 255), (WIDTH - 30, 25), (WIDTH - 5, 50), 2)
-            pygame.draw.line(self.screen, (255, 255, 255), (WIDTH - 30, 50), (WIDTH - 5, 25), 2)
+            pygame.draw.line(self.screen, (255, 255, 255), (self.width - 30, 25), (self.width - 5, 50), 2)
+            pygame.draw.line(self.screen, (255, 255, 255), (self.width - 30, 50), (self.width - 5, 25), 2)
 
             # button hide
-            pygame.draw.rect(self.screen, self.colorOfButtonHide, (WIDTH - 35, 55, 35, 35))
-            pygame.draw.line(self.screen, (255, 255, 255), (WIDTH - 30, 73), (WIDTH - 5, 73), 1)
+            pygame.draw.rect(self.screen, self.colorOfButtonHide, (self.width - 35, 55, 35, 35))
+            pygame.draw.line(self.screen, (255, 255, 255), (self.width - 30, 73), (self.width - 5, 73), 1)
 
     def draw_labyrinth(self):
 
         for row in range(len(self.labyrinth)):
             for col in range(len(self.labyrinth[row])):
-                x = (col + 1) * BLOCK_SIZE  # (WIDTH - len(self.labyrinth) * BLOCKSIZE) / 2
-                y = (row + 1) * BLOCK_SIZE  # (HEIGHT - len(self.labyrinth) * BLOCKSIZE) / 2
+                x = (col + 1) * self.size  # (self.width - len(self.labyrinth) * self.size) / 2
+                y = (row + 1) * self.size  # (self.height - len(self.labyrinth) * self.size) / 2
 
                 if self.labyrinth[row][col] == 1:
-                    pygame.draw.rect(self.screen, (44, 35, 59), (x, y, BLOCK_SIZE, BLOCK_SIZE), 2)
-                    pygame.draw.rect(self.screen, (69, 62, 73), (x + 2, y + 2, BLOCK_SIZE - 4, (BLOCK_SIZE - 2) / 3))
-                    pygame.draw.rect(self.screen, (77, 76, 131), (x + 2, y + 8, BLOCK_SIZE - 4, (BLOCK_SIZE - 2) / 3))
-                    pygame.draw.rect(self.screen, (107, 132, 175), (x + 2, y + 14, BLOCK_SIZE - 4, (BLOCK_SIZE - 2) / 3))
+                    pygame.draw.rect(self.screen, (44, 35, 59), (x, y, self.size, self.size), 2)
+                    pygame.draw.rect(self.screen, (226, 180, 126), (x + 2, y + 2, self.size - 4, 7))
+                    pygame.draw.rect(self.screen, (218, 148, 109), (x + 2, y + 8, self.size - 4, 3))
+                    pygame.draw.rect(self.screen, (196, 113, 95), (x + 2, y + 11, self.size - 4, 3))
+                    pygame.draw.rect(self.screen, (161, 82, 88), (x + 2, y + 14, self.size - 4, 5))
 
                 elif self.labyrinth[row][col] == 2:
-                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
+                    pygame.draw.rect(self.screen, (44, 35, 59), (x, y, self.size, self.size), 2)
+                    pygame.draw.rect(self.screen, (69, 62, 73), (x + 2, y + 2, self.size - 4, (self.size - 2) / 3))
+                    pygame.draw.rect(self.screen, (77, 76, 131), (x + 2, y + 8, self.size - 4, (self.size - 2) / 3))
+                    pygame.draw.rect(self.screen, (107, 132, 175),
+                                     (x + 2, y + 14, self.size - 4, (self.size - 2) / 3))
 
-                    pygame.draw.circle(self.screen, (14, 245, 73), (x + (BLOCK_SIZE / 2), y + (BLOCK_SIZE / 2)),
-                                       self.circle_radius)
-                elif self.labyrinth[row][col] == 3:
-                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
-
-                    pygame.draw.circle(self.screen, (245, 28, 12), (x + (BLOCK_SIZE / 2), y + (BLOCK_SIZE / 2)),
-                                       self.circle_radius)
-
-                elif self.labyrinth[row][col] == 4:
-                    pygame.draw.rect(self.screen, (44, 35, 59), (x, y, BLOCK_SIZE, BLOCK_SIZE), 2)
-                    pygame.draw.rect(self.screen, (226, 180, 126), (x + 2, y + 2, BLOCK_SIZE - 4, 7))
-                    pygame.draw.rect(self.screen, (218, 148, 109), (x + 2, y + 8, BLOCK_SIZE - 4, 3))
-                    pygame.draw.rect(self.screen, (196, 113, 95), (x + 2, y + 11, BLOCK_SIZE - 4, 3))
-                    pygame.draw.rect(self.screen, (161, 82, 88), (x + 2, y + 14, BLOCK_SIZE - 4, 5))
-
-
-
-                elif self.labyrinth[row][col] == 9:
-                    pygame.draw.rect(self.screen, (255, 0, 0), (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                elif self.labyrinth[row][col] == 5:
+                    pygame.draw.rect(self.screen, (255, 0, 0), (x, y, self.size, self.size))
 
                 else:
-                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, BLOCK_SIZE, BLOCK_SIZE))
+                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, self.size, self.size))
                     pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
                     pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
                     pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
                     pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
 
+                    if self.labyrinth[row][col] == 3:
+                        pygame.draw.circle(self.screen, (14, 245, 73), (x + (self.size / 2), y + (self.size / 2)),
+                                           self.circle_radius)
+                    elif self.labyrinth[row][col] == 4:
+                        pygame.draw.circle(self.screen, (245, 28, 12), (x + (self.size / 2), y + (self.size / 2)),
+                                           self.circle_radius)
 
     def draw_button(self):
-        button_width = (LABYRINTH_SIZE - BLOCK_SIZE * 2 + 10) / len(self.buttons)
+        button_width = (self.labyrinth_size - self.size * 2 + 10) / len(self.buttons)
         for num, button in enumerate(self.buttons):
             if self.mouse_in_button == num:
                 pygame.draw.rect(self.screen, BLACK,
-                                 (BLOCK_SIZE + num * button_width - 5, LABYRINTH_SIZE - 5, button_width,
-                                  BUTTON_HEIGHT_SIZE + 10),
-                                 int(BLOCK_SIZE * 0.6))
+                                 (self.size + num * button_width - 5, self.labyrinth_size - 5, button_width,
+                                  self.button_height_size + 10),
+                                 int(self.size * 0.6))
                 text_surface = self.bold_font.render(button["name"], True, BLACK)
             else:
                 pygame.draw.rect(self.screen, BLACK,
-                                 (BLOCK_SIZE + num * button_width, LABYRINTH_SIZE, button_width - 10,
-                                  BUTTON_HEIGHT_SIZE),
-                                 int(BLOCK_SIZE * 0.6))
+                                 (self.size + num * button_width, self.labyrinth_size, button_width - 10,
+                                  self.button_height_size),
+                                 int(self.size * 0.6))
                 text_surface = self.font.render(button["name"], True, BLACK)
             self.screen.blit(text_surface,
-                             (BLOCK_SIZE + num * button_width + button_width / 2 - text_surface.get_width() / 2 - 5,
-                              LABYRINTH_SIZE + BUTTON_HEIGHT_SIZE / 2 - text_surface.get_height() / 2))
+                             (self.size + num * button_width + button_width / 2 - text_surface.get_width() / 2 - 5,
+                              self.labyrinth_size + self.button_height_size / 2 - text_surface.get_height() / 2))
 
     # <--- Mouse event --->
-    def mouse_motion(self, event):
-        mouse_x, mouse_y = event.pos
+    def mouse_motion(self, position):
+        mouse_x, mouse_y = position
 
         # if mouse is on panel
-        if WIDTH - self.currentSize <= mouse_x <= WIDTH and 0 <= mouse_y <= HEIGHT:
+        if self.width - self.currentSize <= mouse_x <= self.width and 0 <= mouse_y <= self.height:
             self.currentSize = self.hoveredSize
             self.detect = True
 
             # if mouse is on close button
-            if WIDTH - 35 <= mouse_x <= WIDTH and 20 <= mouse_y <= 55:
+            if self.width - 35 <= mouse_x <= self.width and 20 <= mouse_y <= 55:
                 self.colorOfButtonClose = DARK_GRAY
                 self.closeButtonState = True
             else:
                 self.colorOfButtonClose = GRAY
 
             # if mouse is on hide button
-            if WIDTH - 35 <= mouse_x <= WIDTH and 55 <= mouse_y <= 90:
+            if self.width - 35 <= mouse_x <= self.width and 55 <= mouse_y <= 90:
                 self.colorOfButtonHide = DARK_GRAY
                 self.hideButtonState = True
 
@@ -204,95 +191,80 @@ class GUI2D:
             self.currentSize = self.originSize
             self.detect = False
 
-        if BLOCK_SIZE <= mouse_x <= WIDTH - BLOCK_SIZE and LABYRINTH_SIZE <= mouse_y <= HEIGHT - BLOCK_SIZE:
-            button_width = (LABYRINTH_SIZE - BLOCK_SIZE * 2 + 10) / len(self.buttons)
+        if self.size <= mouse_x <= self.width - self.size and self.labyrinth_size <= mouse_y <= self.height - self.size:
+            button_width = (self.labyrinth_size - self.size * 2 + 10) / len(self.buttons)
             for num in range(len(self.buttons)):
-                start_x = BLOCK_SIZE + num * button_width
+                start_x = self.size + num * button_width
                 if start_x <= mouse_x <= start_x + button_width - 10:
                     self.mouse_in_button = num
 
         else:
             self.mouse_in_button = None
 
-        if BLOCK_SIZE * 2 <= mouse_x <= WIDTH - BLOCK_SIZE * 2 and BLOCK_SIZE * 2 <= mouse_y <= LABYRINTH_SIZE - BLOCK_SIZE * 2:
+        two_size = self.size * 2
+        if two_size <= mouse_x <= self.width - two_size and two_size <= mouse_y <= self.labyrinth_size - two_size:
             for row in range(len(self.labyrinth)):
                 for col in range(len(self.labyrinth[row])):
-                    x = (col + 1) * BLOCK_SIZE  # (WIDTH - len(self.labyrinth) * BLOCKSIZE) / 2
-                    y = (row + 1) * BLOCK_SIZE  # (HEIGHT - len(self.labyrinth) * BLOCKSIZE) / 2
-                    if x <= mouse_x <= x + BLOCK_SIZE and y <= mouse_y <= y + BLOCK_SIZE:
+                    x = (col + 1) * self.size  # (self.width - len(self.labyrinth) * self.size) / 2
+                    y = (row + 1) * self.size  # (self.height - len(self.labyrinth) * self.size) / 2
+                    if x <= mouse_x <= x + self.size and y <= mouse_y <= y + self.size:
                         self.mouse_in_labyrinth = [row - 1, col - 1]
         else:
             self.mouse_in_labyrinth = None
 
-    def mouse_clicked(self, event):
-        if event.button == 1:
+    def mouse_clicked(self, button):
+        if button == 1:
             if self.detect:
                 mouse_pos = pygame.mouse.get_pos()
-                if WIDTH - 35 < mouse_pos[0] < WIDTH and 20 < mouse_pos[1] < 55:
+                if self.width - 35 < mouse_pos[0] < self.width and 20 < mouse_pos[1] < 55:
                     self.closeButtonState = "clicked"
-                if WIDTH - 35 < mouse_pos[0] < WIDTH and 55 < mouse_pos[1] <= 90:
+                if self.width - 35 < mouse_pos[0] < self.width and 55 < mouse_pos[1] <= 90:
                     self.hideButtonState = "clicked"
 
             if self.mouse_in_button is not None:
                 self.buttons[self.mouse_in_button]["func"]()
 
             if self.mouse_in_labyrinth is not None:
-                if self.player.point.get_xy() ==  [0,1]:
+                if self.player.point.get_xy() == [0, 1]:
                     self.labyrinth_class.get_point(self.mouse_in_labyrinth[0], self.mouse_in_labyrinth[1]).switch()
                     self.labyrinth_class.update_border_labyrinth()
 
-    def mouse_unclicked(self, event):
-        if event.button == 1:
+    def mouse_un_clicked(self, button):
+        if button == 1:
             if self.detect:
                 if self.closeButtonState == "clicked":
                     self.run_bool = False
                 elif self.hideButtonState == "clicked":
                     pygame.display.iconify()
 
-    def key_clicked(self, event):
+    def key_clicked(self, key):
         # Time element, will refactor
-        global BLOCK_SIZE, FRAME, LABYRINTH_SIZE, BUTTON_HEIGHT_SIZE, WIDTH, HEIGHT
-        if event.key in [1073741911, 61]:
-            BLOCK_SIZE += 5
-            FRAME = 5
-            LABYRINTH_SIZE = (25 + 2 * 2) * BLOCK_SIZE
-            BUTTON_HEIGHT_SIZE = BLOCK_SIZE * 4
+        # Збільшення масштабу поля
+        if key in [1073741911, 61]:
+            self.size += 5
+            self.init_size_component()
 
-            WIDTH = LABYRINTH_SIZE + FRAME
-            HEIGHT = LABYRINTH_SIZE + BUTTON_HEIGHT_SIZE + BLOCK_SIZE
-            self.__init__(self.buttons)
-        if event.key in [1073741910, 45]:
-            BLOCK_SIZE -= 5
-            FRAME = 5
-            LABYRINTH_SIZE = (25 + 2 * 2) * BLOCK_SIZE
-            BUTTON_HEIGHT_SIZE = BLOCK_SIZE * 4
+        # Зменшення масштабу поля
+        elif key in [1073741910, 45]:
+            self.size -= 5
+            self.init_size_component()
 
-            WIDTH = LABYRINTH_SIZE + FRAME
-            HEIGHT = LABYRINTH_SIZE + BUTTON_HEIGHT_SIZE + BLOCK_SIZE
-            self.__init__(self.buttons)
+        # Рух по матричному полю (керування гравця)
+        if key == pygame.K_UP:
+            self.player.move_up()
 
+        elif key == pygame.K_DOWN:
+            self.player.move_down()
 
-    def drawPlayer(self, key):
+        elif key == pygame.K_RIGHT:
+            self.player.move_right()
 
-        # player move
-        if key[pygame.K_UP]:
-
-            self.player.moveUp()
-
-        if key[pygame.K_DOWN]:
-            self.player.moveDown()
-
-        if key[pygame.K_RIGHT]:
-            self.player.moveRight()
-
-        if key[pygame.K_LEFT]:
-            self.player.moveLeft()
-
+        elif key == pygame.K_LEFT:
+            self.player.move_left()
 
     # <--- Run game --->
     def run(self):
         while self.run_bool:
-
 
             # to detect some events
             for event in pygame.event.get():
@@ -301,29 +273,21 @@ class GUI2D:
 
                 # mouse motion
                 if event.type == MOUSEMOTION:
-                    self.mouse_motion(event)
+                    self.mouse_motion(event.pos)
 
                 # if clicked
                 if event.type == MOUSEBUTTONDOWN:
-                    self.mouse_clicked(event)
+                    self.mouse_clicked(event.button)
 
-                # if unclicked
+                # if un clicked
                 elif event.type == MOUSEBUTTONUP:
-                    self.mouse_unclicked(event)
+                    self.mouse_un_clicked(event.button)
 
-                # if event.type == pygame.KEYDOWN:
-                #     self.key_clicked(event)
-                key = pygame.key.get_pressed()
-                self.drawPlayer(key)
-
-                if self.player.point.finish:
-                    pass
-
+                if event.type == pygame.KEYDOWN:
+                    self.key_clicked(event.key)
 
             # some code here
             self.draw()
-
-
 
             pygame.display.update()
             # fps on screen
