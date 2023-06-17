@@ -174,7 +174,6 @@ class Player:
                 self.b_labyrinth[self.point.y][self.point.x] = 6
                 self.b_labyrinth[self.point.y - 1][self.point.x] = 3
 
-
         else:
             if self.point.down():
                 if self.b_labyrinth[self.point.y][self.point.x] == 5:

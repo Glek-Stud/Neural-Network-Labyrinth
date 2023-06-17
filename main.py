@@ -6,7 +6,14 @@ from config import BLOCK_SIZE, SCALE
 # < Функція запуску основної програми >
 def start_function():
     Utils()
-    GUI2D(SCALE, BLOCK_SIZE).run()
+    labyrinth_size = "middle"
+    match labyrinth_size:
+        case "min":
+            GUI2D(49, 20).run()
+        case "middle":
+            GUI2D(SCALE, BLOCK_SIZE).run()
+        case "max":
+            GUI2D(9, 60).run()
 
 
 # Завершение Pygame

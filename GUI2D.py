@@ -1,3 +1,4 @@
+from VectorGraphics import VectorGraphics
 from utils import set_logger
 # import random
 import pygame
@@ -25,6 +26,7 @@ class GUI2D:
 
         # create window
         self.size = size
+        self.scale = scale
         self.width, self.height, self.button_height_size, self.labyrinth_size = [0] * 4
         self.screen, self.font, self.bold_font = [None] * 3
         self.init_size_component()
@@ -66,7 +68,7 @@ class GUI2D:
 
     def init_size_component(self):
         # size of window
-        self.labyrinth_size = (25 + 2 * 2) * self.size
+        self.labyrinth_size = (self.scale + 2 * 2) * self.size
         self.button_height_size = self.size * 4
 
         self.width = self.labyrinth_size + FRAME
@@ -110,56 +112,8 @@ class GUI2D:
             pygame.draw.rect(self.screen, self.colorOfButtonHide, (self.width - 35, 55, 35, 35))
             pygame.draw.line(self.screen, (255, 255, 255), (self.width - 30, 73), (self.width - 5, 73), 1)
 
-    """
     def draw_labyrinth(self):
-
-        for row in range(len(self.labyrinth)):
-            for col in range(len(self.labyrinth[row])):
-                x = (col + 1) * self.size  # (self.width - len(self.labyrinth) * self.size) / 2
-                y = (row + 1) * self.size  # (self.height - len(self.labyrinth) * self.size) / 2
-
-                if self.labyrinth[row][col] == 1:
-                    pygame.draw.rect(self.screen, (44, 35, 59), (x, y, self.size, self.size), 2)
-                    pygame.draw.rect(self.screen, (226, 180, 126), (x + 2, y + 2, self.size - 4, 7))
-                    pygame.draw.rect(self.screen, (218, 148, 109), (x + 2, y + 8, self.size - 4, 3))
-                    pygame.draw.rect(self.screen, (196, 113, 95), (x + 2, y + 11, self.size - 4, 3))
-                    pygame.draw.rect(self.screen, (161, 82, 88), (x + 2, y + 14, self.size - 4, 5))
-
-                elif self.labyrinth[row][col] == 2:
-                    pygame.draw.rect(self.screen, (44, 35, 59), (x, y, self.size, self.size), 2)
-                    pygame.draw.rect(self.screen, (69, 62, 73), (x + 2, y + 2, self.size - 4, (self.size - 2) / 3))
-                    pygame.draw.rect(self.screen, (77, 76, 131), (x + 2, y + 8, self.size - 4, (self.size - 2) / 3))
-                    pygame.draw.rect(self.screen, (107, 132, 175),
-                                     (x + 2, y + 14, self.size - 4, (self.size - 2) / 3))
-
-                elif self.labyrinth[row][col] == 5:
-                    pygame.draw.rect(self.screen, (255, 0, 0), (x, y, self.size, self.size))
-
-                else:
-                    pygame.draw.rect(self.screen, (107, 132, 175), (x, y, self.size, self.size))
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y, 7, 14), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y, 14, 7), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x + 6, y + 6, 14, 8), 1)
-                    pygame.draw.rect(self.screen, (126, 163, 191), (x, y + 13, 13, 8), 1)
-
-                    if self.labyrinth[row][col] == 3:
-                        pygame.draw.circle(self.screen, (14, 245, 73), (x + (self.size / 2), y + (self.size / 2)),
-                                           self.circle_radius)
-                    elif self.labyrinth[row][col] == 4:
-                        pygame.draw.circle(self.screen, (245, 28, 12), (x + (self.size / 2), y + (self.size / 2)),
-                                           self.circle_radius)
-    """
-
-    def draw_labyrinth(self):
-        surfaces = {
-            0: self.surface0_road(),
-            1: self.surface1_breakeble_wall(),
-            2: self.surface2_wall(),
-            3: self.surface3_start(),
-            4: self.surface4_finish(),
-            5: self.surface5_trace(),
-            6: self.surface6_player()
-        }
+        surfaces = VectorGraphics(self.size, self.circle_radius).surfaces
 
         for row in range(len(self.labyrinth)):
             for col in range(len(self.labyrinth[row])):
@@ -169,76 +123,6 @@ class GUI2D:
                 surface = surfaces[self.labyrinth[row][col]]
 
                 self.screen.blit(surface, (x, y))
-
-    def surface0_road(self):
-        surface = pygame.Surface((self.size, self.size))
-        pygame.draw.rect(surface, (107, 132, 175), (0, 0, self.size, self.size))
-        pygame.draw.rect(surface, (126, 163, 191), (0, 0, self.size * 7 // 20, self.size * 14 // 20), self.size // 20)
-        pygame.draw.rect(surface, (126, 163, 191), (self.size * 6 // 20, 0, self.size * 14 // 20, self.size * 7 // 20), self.size // 20)
-        pygame.draw.rect(surface, (126, 163, 191),(self.size * 6 // 20, self.size * 6 // 20, self.size * 14 // 20, self.size * 8 // 20),self.size // 20)
-        pygame.draw.rect(surface, (126, 163, 191), (0, self.size * 13 // 20, self.size * 13 // 20, self.size * 8 // 20), self.size // 20)
-        return surface
-
-    def surface1_breakeble_wall(self):
-        surface = pygame.Surface((self.size, self.size))
-        pygame.draw.rect(surface, (44, 35, 59), (0, 0, self.size, self.size), self.size // 10)
-        pygame.draw.rect(surface, (226, 180, 126), (self.size // 10, self.size // 10, self.size - 2 * (self.size // 10), self.size * 7 // 20))
-        pygame.draw.rect(surface, (218, 148, 109), (self.size // 10, self.size * 8 // 20, self.size - 2 * (self.size // 10), self.size * 3 // 20))
-        pygame.draw.rect(surface, (196, 113, 95), (self.size // 10, self.size * 11 // 20, self.size - 2 * (self.size // 10), self.size * 3 // 20))
-        pygame.draw.rect(surface, (161, 82, 88), (self.size // 10, self.size * 14 // 20, self.size - 2 * (self.size // 10), self.size * 5 // 20))
-        return surface
-
-    def surface2_wall(self):
-        surface = pygame.Surface((self.size, self.size))
-        pygame.draw.rect(surface, (44, 35, 59), (0, 0, self.size, self.size), self.size // 10)
-        pygame.draw.rect(surface, (69, 62, 73), (self.size // 10, self.size // 10, self.size - 2 * (self.size // 10), (self.size - self.size // 10) // 3))
-        pygame.draw.rect(surface, (77, 76, 131), (self.size // 10, self.size * 2 // 5, self.size - 2 * (self.size // 10),(self.size - self.size // 10) // 3))
-        pygame.draw.rect(surface, (107, 132, 175), (self.size // 10, self.size * 7 // 10, self.size - 2 * (self.size // 10),(self.size - self.size // 10) // 2))
-        return surface
-
-    def surface3_start(self):
-        surface = self.surface0_road()
-        pygame.draw.circle(surface, (14, 245, 73), (self.size // 2, self.size // 2), self.circle_radius)
-        return surface
-
-    def surface4_finish(self):
-        surface = self.surface0_road()
-        pygame.draw.circle(surface, (245, 28, 12), (self.size // 2, self.size // 2), self.circle_radius)
-        return surface
-
-    def surface5_trace(self):
-        DARK_GREEN = (36, 168, 69)
-        GREEN = (43, 214, 88)
-        surface = pygame.Surface((self.size, self.size))
-        pygame.draw.rect(surface, DARK_GREEN, (0, 0, self.size, self.size))
-        pygame.draw.rect(surface, GREEN, (0, 0, self.size * 7 // 20, self.size * 14 // 20), self.size // 20)
-        pygame.draw.rect(surface, GREEN, (self.size * 6 // 20, 0, self.size * 14 // 20, self.size * 7 // 20),
-                         self.size // 20)
-        pygame.draw.rect(surface, GREEN,
-                         (self.size * 6 // 20, self.size * 6 // 20, self.size * 14 // 20, self.size * 8 // 20),
-                         self.size // 20)
-        pygame.draw.rect(surface, GREEN, (0, self.size * 13 // 20, self.size * 13 // 20, self.size * 8 // 20),
-                         self.size // 20)
-        return surface
-
-    def surface6_player(self):
-        surface = pygame.Surface((self.size, self.size))
-        pygame.draw.rect(surface, (43, 214, 88), (self.size * 2 // 20, self.size * 2 // 20, self.size * 16 // 20, self.size * 4 // 20))
-        pygame.draw.rect(surface, (37, 204, 79), (self.size * 2 // 20, self.size * 6 // 20, self.size * 16 // 20,
-                         self.size * 4 // 20))
-        pygame.draw.rect(surface, (32, 191, 72), (self.size * 2 // 20, self.size * 10 // 20, self.size * 16 // 20,
-                         self.size * 4 // 20))
-        pygame.draw.rect(surface, (37, 184, 74), (self.size * 2 // 20, self.size * 13 // 20, self.size * 16 // 20,
-                         self.size * 4 // 20))
-        pygame.draw.rect(surface, (36, 168, 69), (self.size * 2 // 20, self.size * 16 // 20, self.size * 16 // 20,
-                         self.size * 2 // 20))
-
-        pygame.draw.rect(surface, BLACK, (self.size * 4 // 20, self.size * 5 // 20, self.size * 5 // 20,
-                         self.size * 5 // 20))
-        pygame.draw.rect(surface, BLACK, (self.size * 11.8 // 20, self.size * 5 // 20, self.size * 5 // 20,
-                         self.size * 5 // 20))
-
-        return surface
 
     def draw_button(self):
         button_width = (self.labyrinth_size - self.size * 2 + 10) / len(self.buttons)
@@ -342,8 +226,11 @@ class GUI2D:
 
         # Зменшення масштабу поля
         elif key in [1073741910, 45]:
-            self.size -= 5
-            self.init_size_component()
+            if self.size > 20:
+                self.size -= 5
+                self.init_size_component()
+            else:
+                print("Це мінімальний масштаб")
 
         # Рух по матричному полю (керування гравця)
         if key == pygame.K_UP:
@@ -387,13 +274,15 @@ class GUI2D:
 
             # CIRCLE
             if self.radius_decreasing:
-                self.circle_radius -= 0.1
-                if self.circle_radius <= 0:  # если радиус достиг 0 или меньше, меняем направление
+                self.circle_radius -= self.size * 0.3 / 20
+                # если радиус достиг 0 или меньше, меняем направление
+                if self.circle_radius <= 0:
                     self.radius_decreasing = False
 
             else:
-                self.circle_radius += 0.1
-                if self.circle_radius >= self.size / 2 - 1:  # если радиус достиг максимального значения, меняем направление
+                self.circle_radius += self.size * 0.3 / 20
+                # если радиус достиг максимального значения, меняем направление
+                if self.circle_radius >= self.size / 2 - 1:
                     self.radius_decreasing = True
 
             pygame.display.update()
