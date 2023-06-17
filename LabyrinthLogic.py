@@ -20,7 +20,7 @@ class LabyrinthLogic:
 
         self.border_labyrinth.clear()
         up_lid = [2] * (self.scale + 2)
-        up_lid[1] = 6
+        up_lid[1] = 7
         self.border_labyrinth.append(up_lid)
 
         for stage in self.labyrinth:
@@ -161,45 +161,45 @@ class Player:
         if self.point.up():
             if self.b_labyrinth[self.point.y][self.point.x] == 5:
 
-                self.b_labyrinth[self.point.y + 1][self.point.x] = 0
+                self.b_labyrinth[self.point.y + 1][self.point.x] = 6
             else:
                 self.b_labyrinth[self.point.y + 1][self.point.x] = 5
-            self.b_labyrinth[self.point.y][self.point.x] = 6
+            self.b_labyrinth[self.point.y][self.point.x] = 7
 
     @decorator_check_finish
     def move_down(self):
         if self.first_call:
             self.first_call = False
             if self.point.down():
-                self.b_labyrinth[self.point.y][self.point.x] = 6
+                self.b_labyrinth[self.point.y][self.point.x] = 7
                 self.b_labyrinth[self.point.y - 1][self.point.x] = 3
 
         else:
             if self.point.down():
                 if self.b_labyrinth[self.point.y][self.point.x] == 5:
-                    self.b_labyrinth[self.point.y - 1][self.point.x] = 0
+                    self.b_labyrinth[self.point.y - 1][self.point.x] = 6
                 else:
                     self.b_labyrinth[self.point.y - 1][self.point.x] = 5
 
-                self.b_labyrinth[self.point.y][self.point.x] = 6
+                self.b_labyrinth[self.point.y][self.point.x] = 7
 
     @decorator_check_finish
     def move_right(self):
         if self.point.right():
             if self.b_labyrinth[self.point.y][self.point.x] == 5:
-                self.b_labyrinth[self.point.y][self.point.x - 1] = 0
+                self.b_labyrinth[self.point.y][self.point.x - 1] = 6
             else:
                 self.b_labyrinth[self.point.y][self.point.x - 1] = 5
-            self.b_labyrinth[self.point.y][self.point.x] = 6
+            self.b_labyrinth[self.point.y][self.point.x] = 7
 
     @decorator_check_finish
     def move_left(self):
         if self.point.left():
             if self.b_labyrinth[self.point.y][self.point.x] == 5:
-                self.b_labyrinth[self.point.y][self.point.x + 1] = 0
+                self.b_labyrinth[self.point.y][self.point.x + 1] = 6
             else:
                 self.b_labyrinth[self.point.y][self.point.x + 1] = 5
-            self.b_labyrinth[self.point.y][self.point.x] = 6
+            self.b_labyrinth[self.point.y][self.point.x] = 7
 
 
 if __name__ == '__main__':

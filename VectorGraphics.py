@@ -12,7 +12,8 @@ class VectorGraphics:
             3: self.surface3_start(size, circle_radius),
             4: self.surface4_finish(size, circle_radius),
             5: self.surface5_trace(size),
-            6: self.surface6_player(size)
+            6: self.surface6_trace2(size),
+            7: self.surface7_player(size)
         }
 
     @staticmethod
@@ -67,7 +68,23 @@ class VectorGraphics:
         rect(surface, green, (0, size * 13 // 20, size * 13 // 20, size * 8 // 20), size // 20)
         return surface
 
-    def surface6_player(self, size):
+    @staticmethod
+    def surface6_trace2(size):
+        d_red = (179, 51, 51)
+        red = (212, 60, 60)
+        surface = Surface((size, size))
+        rect(surface, d_red, (0, 0, size, size))
+        rect(surface, red, (0, 0, size * 7 // 20, size * 14 // 20), size // 20)
+        rect(surface, red, (size * 6 // 20, 0, size * 14 // 20, size * 7 // 20),
+             size // 20)
+        rect(surface, red,
+             (size * 6 // 20, size * 6 // 20, size * 14 // 20, size * 8 // 20),
+             size // 20)
+        rect(surface, red, (0, size * 13 // 20, size * 13 // 20, size * 8 // 20),
+             size // 20)
+        return surface
+
+    def surface7_player(self, size):
         surface_main = self.surface0_road(size)
 
         red = (212, 15, 28)
