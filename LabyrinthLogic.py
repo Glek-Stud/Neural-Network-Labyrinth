@@ -111,6 +111,22 @@ class Point:
         self.x += 1
         return True
 
+    def get_data(self, x, y):
+        if 0 <= x <= self.scale + 1 and 0 <= y <= self.scale + 1:
+            if (data := self.b_labyrinth[y][x]) in [1, 2, 3]:
+                return 0
+            elif data == 0:
+                return 1
+            else:
+                return data - 3
+        else:
+            return 0
+
+    def get_data_point(self):
+        all_data = [self.get_data(self.x + 1, self.y), self.get_data(self.x, self.y + 1),
+                    self.get_data(self.x - 1, self.y), self.get_data(self.x, self.y - 1)]
+        return all_data
+
     def get_xy(self):
         return [self.y, self.x]
 
@@ -125,9 +141,6 @@ class Point:
             self.labyrinth_logic.labyrinth[self.y][self.x] = 0
         else:
             self.labyrinth_logic.labyrinth[self.y][self.x] = 1
-
-    def get_point(self):
-        return self.labyrinth_logic.labyrinth[self.y][self.x]
 
 
 class Player:

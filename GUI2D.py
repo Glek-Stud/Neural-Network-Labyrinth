@@ -4,14 +4,15 @@ from utils import set_logger
 import pygame
 from pygame.locals import QUIT, MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP
 from LabyrinthLogic import LabyrinthLogic
-from config import WHITE, BLACK, GRAY, TITLE, DARK_GRAY, BUTTONS, FRAME
+from config import WHITE, BLACK, GRAY, TITLE, DARK_GRAY, FRAME
+from NeuralNetwork import NeuralNetwork
 
 
 class GUI2D:
     # initialisation of pygame
     pygame.init()
 
-    def __init__(self, scale=25, size=20):
+    def __init__(self, scale=25, size=20, sleap_network=5):
         self.logger = set_logger("GUI 2D")
 
         self.labyrinth_class = LabyrinthLogic(scale)
@@ -19,6 +20,11 @@ class GUI2D:
         self.labyrinth_class.update_border_labyrinth()
         self.labyrinth = self.labyrinth_class.border_labyrinth
         self.player = self.labyrinth_class.get_player()
+
+        self.neural_network_class = NeuralNetwork()
+        self.network_bool = False
+        self.sleap_network = sleap_network
+        self.sleap_network_check = 0
 
         # CIRCLE
         self.circle_radius = size / 2 - 1
@@ -61,7 +67,10 @@ class GUI2D:
         self.hideButtonState = "normal"
 
         self.run_bool = True
-        self.buttons = BUTTONS
+        self.buttons = [
+            {"name": "Тренировка нейросети", "func": lambda: self.neural_network_class.auto_generate_training()},
+            {"name": "Включить нейросеть", "func": lambda: self.switch_network_bool()},
+        ]
         self.mouse_in_button = None
 
         self.mouse_in_labyrinth = None
@@ -78,6 +87,9 @@ class GUI2D:
 
         self.font = pygame.font.Font(None, int(self.size * 1.4))
         self.bold_font = pygame.font.Font(None, int(self.size * 1.6))
+
+    def switch_network_bool(self):
+        self.network_bool = not self.network_bool
 
     # <--- Draw all element --->
     def draw(self):
@@ -245,10 +257,24 @@ class GUI2D:
         elif key == pygame.K_LEFT:
             self.player.move_left()
 
+    def run_neural_network(self):
+        if self.sleap_network_check != 0:
+            self.sleap_network_check -= 1
+            return
+        self.sleap_network_check = self.sleap_network
+
+        player_move = {1: self.player.move_right,
+                       2: self.player.move_down,
+                       3: self.player.move_left,
+                       4: self.player.move_up}
+
+        get_ans = self.neural_network_class.generate_ans(self.player.point.get_data_point())
+
+        player_move[get_ans]()
+
     # <--- Run game --->
     def run(self):
         while self.run_bool:
-
             # to detect some events
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -268,6 +294,9 @@ class GUI2D:
 
                 if event.type == pygame.KEYDOWN:
                     self.key_clicked(event.key)
+
+            if self.network_bool:
+                self.run_neural_network()
 
             # some code here
             self.draw()
