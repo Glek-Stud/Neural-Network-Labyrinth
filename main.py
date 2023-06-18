@@ -13,7 +13,7 @@ def start_function():
         case "middle":
             GUI2D(SCALE, BLOCK_SIZE).run()
         case "max":
-            GUI2D(9, 60).run()
+            GUI2D(9, 40).run()
 
 
 # Завершение Pygame

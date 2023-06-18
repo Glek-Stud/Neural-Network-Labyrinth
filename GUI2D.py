@@ -75,13 +75,14 @@ class GUI2D:
 
         self.mouse_in_labyrinth = None
 
+
     def init_size_component(self):
         # size of window
         self.labyrinth_size = (self.scale + 2 * 2) * self.size
         self.button_height_size = self.size * 4
 
         self.width = self.labyrinth_size + FRAME
-        self.height = self.labyrinth_size + self.button_height_size + self.size
+        self.height = self.labyrinth_size + self.button_height_size + self.size+50
 
         self.screen = pygame.display.set_mode((self.width, self.height), flags=pygame.NOFRAME | pygame.DOUBLEBUF)
 
@@ -272,6 +273,26 @@ class GUI2D:
 
         player_move[get_ans]()
 
+
+    def display_score(self):
+        # display score
+        score = self.font.render(f"score: {str(self.player.point.score)}", True, self.player.point.color_of_score)
+        text_rect = score.get_rect()
+        text_rect.center = (self.width / 2, self.height - 55)
+        self.screen.blit(score, text_rect)
+
+        # display the best score
+        best_score = self.font.render(f"best score: {str(self.player.point.best_score)}", True, BLACK)
+        text_rect = best_score.get_rect()
+        text_rect.center = (100, self.height - 25)
+        self.screen.blit(best_score, text_rect)
+
+        #dispaly count of victory
+        victories = self.font.render(f"victories: {str(self.player.point.count_of_victories)}", True, BLACK)
+        text_rect = best_score.get_rect()
+        text_rect.center = (self.width-100, self.height - 25)
+        self.screen.blit(victories, text_rect)
+
     # <--- Run game --->
     def run(self):
         while self.run_bool:
@@ -313,6 +334,11 @@ class GUI2D:
                 # если радиус достиг максимального значения, меняем направление
                 if self.circle_radius >= self.size / 2 - 1:
                     self.radius_decreasing = True
+
+            self.display_score()
+
+
+
 
             pygame.display.update()
             # fps on screen

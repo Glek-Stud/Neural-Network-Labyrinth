@@ -10,6 +10,7 @@ class LabyrinthLogic:
         self.scale = scale
         self.labyrinth = [[0] * scale for _ in range(scale)]
 
+
     def get_point(self, y: int = 0, x: int = 1):
         return Point(self, y, x)
 
@@ -82,6 +83,15 @@ class Point:
         self.y = y
 
         self.walls = [1, 2]
+
+        # score
+        self.score = 0
+        self.color_of_score = (0,0,0)
+
+
+        self.best_score = 0
+
+        self.count_of_victories = 0
 
     def up(self):
         if self.y - 1 < 0 or self.b_labyrinth[self.y - 1][self.x] in self.walls:
@@ -156,7 +166,10 @@ class Player:
         self.labyrinth_logic.update_border_labyrinth()
 
     def finish(self):
-        print("10 балов Грифиндор")
+        if self.point.score>self.point.best_score:
+            self.point.best_score = self.point.score
+        self.point.score = 0
+        self.point.count_of_victories +=1
         self.reset()
 
     @staticmethod
@@ -175,8 +188,12 @@ class Player:
             if self.b_labyrinth[self.point.y][self.point.x] == 5:
 
                 self.b_labyrinth[self.point.y + 1][self.point.x] = 6
+                self.point.score -= 2
+                self.point.color_of_score = (255,0,0)
             else:
                 self.b_labyrinth[self.point.y + 1][self.point.x] = 5
+                self.point.score += 1
+                self.point.color_of_score = (0, 150, 0)
             self.b_labyrinth[self.point.y][self.point.x] = 7
 
     @decorator_check_finish
@@ -191,8 +208,13 @@ class Player:
             if self.point.down():
                 if self.b_labyrinth[self.point.y][self.point.x] == 5:
                     self.b_labyrinth[self.point.y - 1][self.point.x] = 6
+                    self.point.score -= 2
+                    self.point.color_of_score = (255, 0, 0)
+
                 else:
                     self.b_labyrinth[self.point.y - 1][self.point.x] = 5
+                    self.point.score += 1
+                    self.point.color_of_score = (0, 150, 0)
 
                 self.b_labyrinth[self.point.y][self.point.x] = 7
 
@@ -201,8 +223,14 @@ class Player:
         if self.point.right():
             if self.b_labyrinth[self.point.y][self.point.x] == 5:
                 self.b_labyrinth[self.point.y][self.point.x - 1] = 6
+                self.point.score -= 2
+                self.point.color_of_score = (255, 0, 0)
+
             else:
                 self.b_labyrinth[self.point.y][self.point.x - 1] = 5
+                self.point.score += 1
+                self.point.color_of_score = (0, 150, 0)
+
             self.b_labyrinth[self.point.y][self.point.x] = 7
 
     @decorator_check_finish
@@ -210,8 +238,14 @@ class Player:
         if self.point.left():
             if self.b_labyrinth[self.point.y][self.point.x] == 5:
                 self.b_labyrinth[self.point.y][self.point.x + 1] = 6
+                self.point.score -= 2
+                self.point.color_of_score = (255, 0, 0)
+
             else:
                 self.b_labyrinth[self.point.y][self.point.x + 1] = 5
+                self.point.score += 1
+                self.point.color_of_score = (0, 150, 0)
+
             self.b_labyrinth[self.point.y][self.point.x] = 7
 
 
