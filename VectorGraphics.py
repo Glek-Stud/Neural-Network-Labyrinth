@@ -1,7 +1,7 @@
 from pygame.draw import rect, circle
 from pygame import Surface, SRCALPHA
 from config import BLACK
-
+from pygame import transform
 
 class VectorGraphics:
     def __init__(self, size, circle_radius):
@@ -13,7 +13,8 @@ class VectorGraphics:
             4: self.surface4_finish(size, circle_radius),
             5: self.surface5_trace(size),
             6: self.surface6_trace2(size),
-            7: self.surface7_player(size)
+            7: self.surface7_player(size),
+            8: self.surface8_player(size)
         }
 
     @staticmethod
@@ -84,6 +85,8 @@ class VectorGraphics:
              size // 20)
         return surface
 
+
+
     def surface7_player(self, size):
         surface_main = self.surface0_road(size)
 
@@ -121,5 +124,13 @@ class VectorGraphics:
         rect(surface, red, (one * 14, one * 16, one * 3, one * 3))
 
         surface_main.blit(surface, (int(size % 20 / 2), int(size % 20 / 2)))
+        return surface_main
 
+
+    def surface8_player(self, size):
+        surface_main = self.surface7_player(size)
+
+        flipped_surface = transform.flip(surface_main, True, False)  # Отражение по вертикали
+
+        surface_main.blit(flipped_surface, (int(size % 20 / 2), int(size % 20 / 2)))
         return surface_main

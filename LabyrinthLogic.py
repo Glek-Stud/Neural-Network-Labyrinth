@@ -159,7 +159,7 @@ class Player:
         self.point = point
         self.labyrinth_logic = labyrinth_logic
         self.b_labyrinth = labyrinth_logic.border_labyrinth
-
+        self.rigth = True
     def reset(self):
         self.point.x, self.point.y = [1, 0]
         self.labyrinth_logic.generate_labyrinth()
@@ -169,7 +169,7 @@ class Player:
         if self.point.score>self.point.best_score:
             self.point.best_score = self.point.score
         self.point.score = 0
-        self.point.count_of_victories +=1
+        self.point.count_of_victories+=1
         self.reset()
 
     @staticmethod
@@ -194,7 +194,11 @@ class Player:
                 self.b_labyrinth[self.point.y + 1][self.point.x] = 5
                 self.point.score += 1
                 self.point.color_of_score = (0, 150, 0)
-            self.b_labyrinth[self.point.y][self.point.x] = 7
+
+            if self.rigth:
+                self.b_labyrinth[self.point.y][self.point.x] = 7
+            else:
+                self.b_labyrinth[self.point.y][self.point.x] = 8
 
     @decorator_check_finish
     def move_down(self):
@@ -215,12 +219,15 @@ class Player:
                     self.b_labyrinth[self.point.y - 1][self.point.x] = 5
                     self.point.score += 1
                     self.point.color_of_score = (0, 150, 0)
-
-                self.b_labyrinth[self.point.y][self.point.x] = 7
+                if self.rigth:
+                    self.b_labyrinth[self.point.y][self.point.x] = 7
+                else:
+                    self.b_labyrinth[self.point.y][self.point.x] = 8
 
     @decorator_check_finish
     def move_right(self):
         if self.point.right():
+            self.rigth=True
             if self.b_labyrinth[self.point.y][self.point.x] == 5:
                 self.b_labyrinth[self.point.y][self.point.x - 1] = 6
                 self.point.score -= 2
@@ -230,12 +237,15 @@ class Player:
                 self.b_labyrinth[self.point.y][self.point.x - 1] = 5
                 self.point.score += 1
                 self.point.color_of_score = (0, 150, 0)
-
-            self.b_labyrinth[self.point.y][self.point.x] = 7
+            if self.rigth:
+                self.b_labyrinth[self.point.y][self.point.x] = 7
+            else:
+                self.b_labyrinth[self.point.y][self.point.x] = 8
 
     @decorator_check_finish
     def move_left(self):
         if self.point.left():
+            self.rigth = False
             if self.b_labyrinth[self.point.y][self.point.x] == 5:
                 self.b_labyrinth[self.point.y][self.point.x + 1] = 6
                 self.point.score -= 2
@@ -246,7 +256,10 @@ class Player:
                 self.point.score += 1
                 self.point.color_of_score = (0, 150, 0)
 
-            self.b_labyrinth[self.point.y][self.point.x] = 7
+            if self.rigth:
+                self.b_labyrinth[self.point.y][self.point.x] = 7
+            else:
+                self.b_labyrinth[self.point.y][self.point.x] = 8
 
 
 if __name__ == '__main__':

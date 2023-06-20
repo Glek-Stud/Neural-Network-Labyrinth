@@ -9,7 +9,7 @@ def start_function():
     labyrinth_size = "middle"
     match labyrinth_size:
         case "min":
-            GUI2D(49, 20).run()
+            GUI2D(50, 20).run()
         case "middle":
             GUI2D(SCALE, BLOCK_SIZE).run()
         case "max":
