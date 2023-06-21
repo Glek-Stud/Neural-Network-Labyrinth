@@ -14,6 +14,14 @@ class Sounds:
 
         mixer.music.play(-1)
 
+    def train_sound(self):
+        mixer.music.load("training.mp3")
+
+        mixer.music.play()
+
+    def start_noiral_sound(self):
+        pass
+
     def stop(self):
 
         mixer.music.stop()

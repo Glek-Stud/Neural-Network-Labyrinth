@@ -126,7 +126,6 @@ class VectorGraphics:
         surface_main.blit(surface, (int(size % 20 / 2), int(size % 20 / 2)))
         return surface_main
 
-
     def surface8_player(self, size):
         surface_main = self.surface7_player(size)
 
@@ -134,3 +133,10 @@ class VectorGraphics:
 
         surface_main.blit(flipped_surface, (int(size % 20 / 2), int(size % 20 / 2)))
         return surface_main
+
+    @staticmethod
+    def surface9_button(self, size, button_width):
+        surface = Surface((size, size))
+        border_radius = 20
+
+        return surface
