@@ -7,10 +7,10 @@ from LabyrinthLogic import LabyrinthLogic
 from config import WHITE, BLACK, GRAY, TITLE, DARK_GRAY, FRAME
 from NeuralNetwork import NeuralNetwork
 
-
 class GUI2D:
     # initialisation of pygame
     pygame.init()
+    pygame.mixer.init()
 
     def __init__(self, scale=25, size=20, sleap_network=5):
         self.logger = set_logger("GUI 2D")
@@ -318,6 +318,8 @@ class GUI2D:
 
             if self.network_bool:
                 self.run_neural_network()
+            self.player.point.time+=1
+            self.player.is_move()
 
             # some code here
             self.draw()
