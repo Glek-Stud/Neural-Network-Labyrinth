@@ -1,20 +1,19 @@
 from VectorGraphics import VectorGraphics
-from utils import set_logger
-# import random
 import pygame
 from pygame.locals import QUIT, MOUSEMOTION, MOUSEBUTTONDOWN, MOUSEBUTTONUP
 from LabyrinthLogic import LabyrinthLogic
 from config import WHITE, BLACK, GRAY, TITLE, DARK_GRAY, FRAME
 from NeuralNetwork import NeuralNetwork
+from sound.sounds import Sounds
+
 
 class GUI2D:
-    # initialisation of pygame
+    # Initialisation of pygame and mixer
     pygame.init()
     pygame.mixer.init()
 
+    # <--- Init all component --->
     def __init__(self, scale=25, size=20, sleap_network=5):
-        self.logger = set_logger("GUI 2D")
-
         self.labyrinth_class = LabyrinthLogic(scale)
         self.labyrinth_class.generate_labyrinth()
         self.labyrinth_class.update_border_labyrinth()
@@ -27,7 +26,7 @@ class GUI2D:
         self.sleap_network_check = 0
 
         # CIRCLE
-        self.circle_radius = size / 2 - 1
+        self.circle_radius = None
         self.radius_decreasing = True
 
         # create window
@@ -51,8 +50,6 @@ class GUI2D:
         # detect mouse on panel
         self.detect = False
 
-        # CIRCLE
-        self.circle_radius = self.size / 2 - 1
         # title
 
         self.text_surface = self.font.render(TITLE, True, WHITE)
@@ -68,29 +65,29 @@ class GUI2D:
 
         self.run_bool = True
         self.buttons = [
-            {"name": "Тренировка нейросети", "func": lambda: self.neural_network_class.auto_generate_training()}, #Тренировка нейросети
-            {"name": "Включить нейросеть", "func": lambda: self.switch_network_bool()}, #Включить нейросеть
+            {"name": "Тренування нейромережі", "func": self.button1_training},
+            # Тренировка нейросети
+            {"name": "Увімкнути нейромережу", "func": self.button2_switch},  # Включить нейросеть
         ]
         self.mouse_in_button = None
 
         self.mouse_in_labyrinth = None
 
-
     def init_size_component(self):
         # size of window
         self.labyrinth_size = (self.scale + 2 * 2) * self.size
-        self.button_height_size = self.size * 4
+        self.button_height_size = self.size * 3
 
         self.width = self.labyrinth_size + FRAME
-        self.height = self.labyrinth_size + self.button_height_size + self.size+50
+        self.height = self.labyrinth_size + self.button_height_size + self.size * 3
 
         self.screen = pygame.display.set_mode((self.width, self.height), flags=pygame.NOFRAME | pygame.DOUBLEBUF)
 
         self.font = pygame.font.Font(None, int(self.size * 1.4))
         self.bold_font = pygame.font.Font(None, int(self.size * 1.6))
 
-    def switch_network_bool(self):
-        self.network_bool = not self.network_bool
+        # CIRCLE
+        self.circle_radius = self.size / 2 - 1
 
     # <--- Draw all element --->
     def draw(self):
@@ -99,6 +96,7 @@ class GUI2D:
         # draw labyrinth by random matrix
         self.draw_labyrinth()
         self.draw_button()
+        self.draw_score()
 
         self.draw_panel()
 
@@ -125,6 +123,10 @@ class GUI2D:
             pygame.draw.rect(self.screen, self.colorOfButtonHide, (self.width - 35, 55, 35, 35))
             pygame.draw.line(self.screen, (255, 255, 255), (self.width - 30, 73), (self.width - 5, 73), 1)
 
+            pygame.draw.rect(self.screen, (44, 35, 59),
+                             (self.width - self.currentSize, -2, 10 + self.currentSize, self.height + 4),
+                             3, border_radius=40)
+
     def draw_labyrinth(self):
         surfaces = VectorGraphics(self.size, self.circle_radius).surfaces
 
@@ -137,103 +139,50 @@ class GUI2D:
 
                 self.screen.blit(surface, (x, y))
 
-    def draw_button(self):
-        border_radius = 20
+    def draw_score(self):
+        # display score
+        score = self.font.render(f"Бали: {str(self.player.point.score)}", True, self.player.point.color_of_score)
+        text_rect = (self.width / 2 - score.get_width() / 2, self.height - self.size - score.get_height())
+        self.screen.blit(score, text_rect)
 
+        # display the best score
+        best_score = self.font.render(f"Найкращий бал: {str(self.player.point.best_score)}", True, BLACK)
+        text_rect = (self.size, self.height - self.size - best_score.get_height())
+        self.screen.blit(best_score, text_rect)
+
+        # display count of victory
+        victories = self.font.render(f"Перемоги: {str(self.player.point.count_of_victories)}", True, BLACK)
+        text_rect = (self.width - self.size - victories.get_width(), self.height - self.size - victories.get_height())
+        self.screen.blit(victories, text_rect)
+
+    def draw_button(self):
         button_width = (self.labyrinth_size - self.size * 2 + 10) / len(self.buttons)
         for num, button in enumerate(self.buttons):
             if self.mouse_in_button == num:
-                pygame.draw.rect(self.screen, (226, 180, 126),
-                                 (self.size + num * button_width + border_radius - 5, self.labyrinth_size, button_width - 2 * border_radius,
-                                  self.button_height_size * 4 // 12))
-
-                pygame.draw.circle(self.screen, (226, 180, 126),
-                                   (self.size + num * button_width + border_radius, self.labyrinth_size + border_radius),
-                                   border_radius)
-
-                pygame.draw.circle(self.screen, (226, 180, 126),
-                                   (self.size + (num + 1) * button_width - 1.5 * border_radius,
-                                    self.labyrinth_size + border_radius),
-                                   border_radius)
-
-                pygame.draw.circle(self.screen, (161, 82, 88),
-                                   (self.size + num * button_width + border_radius,
-                                    self.labyrinth_size + self.button_height_size - border_radius),
-                                   border_radius)
-
-                pygame.draw.circle(self.screen, (161, 82, 88),
-                                   (self.size + (num + 1) * button_width - 1.5 * border_radius,
-                                    self.labyrinth_size + self.button_height_size - border_radius),
-                                   border_radius)
-
-                pygame.draw.rect(self.screen, (218, 148, 109),
-                                 (self.size + num * button_width - 5,
-                                  self.labyrinth_size + self.button_height_size * 4 // 12 - 5, button_width,
-                                  self.button_height_size * 3 // 12 + 10))
-
-                pygame.draw.rect(self.screen, (196, 113, 95),
-                                 (self.size + num * button_width - 5,
-                                  self.labyrinth_size + self.button_height_size * 7 // 12, button_width,
-                                  self.button_height_size * 2 // 12))
-
-                pygame.draw.rect(self.screen, (161, 82, 88),
-                                 (self.size + num * button_width + border_radius - 5,
-                                  self.labyrinth_size + self.button_height_size * 8.9 // 12, button_width - 2 * border_radius,
-                                  self.button_height_size * 3 // 12))
-
-                pygame.draw.rect(self.screen, (44, 35, 59),
-                                 (self.size + num * button_width - 5, self.labyrinth_size - 5, button_width,
-                                  self.button_height_size + 10),
-                                 int(self.size * 0.4), border_radius=20)
+                self.screen.blit(VectorGraphics.surface_button(button_width, self.button_height_size + 10),
+                                 (self.size + num * button_width - 5, self.labyrinth_size - 5))
 
                 text_surface = self.bold_font.render(button["name"], True, (44, 35, 59))
             else:
-                pygame.draw.rect(self.screen, (226, 180, 126),
-                                 (self.size + num * button_width + border_radius, self.labyrinth_size, button_width - 10 - 2 * border_radius,
-                                  self.button_height_size * 4 // 12))
 
-                pygame.draw.circle(self.screen, (226, 180, 126),
-                                   (
-                                       self.size + num * button_width + border_radius,
-                                       self.labyrinth_size + border_radius),
-                                   border_radius)
-
-                pygame.draw.circle(self.screen, (226, 180, 126),
-                                   (self.size + (num + 1) * button_width - 1.5 * border_radius,
-                                    self.labyrinth_size + border_radius),
-                                   border_radius)
-
-                pygame.draw.circle(self.screen, (161, 82, 88),
-                                   (self.size + num * button_width + border_radius,
-                                    self.labyrinth_size + self.button_height_size - border_radius),
-                                   border_radius)
-
-                pygame.draw.circle(self.screen, (161, 82, 88),
-                                   (self.size + (num + 1) * button_width - 1.5 * border_radius,
-                                    self.labyrinth_size + self.button_height_size - border_radius),
-                                   border_radius)
-
-                pygame.draw.rect(self.screen, (218, 148, 109),
-                                 (self.size + num * button_width, self.labyrinth_size + self.button_height_size * 4 // 12, button_width - 10,
-                                  self.button_height_size * 3 // 12))
-
-                pygame.draw.rect(self.screen, (196, 113, 95),
-                                 (self.size + num * button_width, self.labyrinth_size + self.button_height_size * 7 // 12, button_width - 10,
-                                  self.button_height_size * 2 // 12))
-
-                pygame.draw.rect(self.screen, (161, 82, 88),
-                                 (self.size + num * button_width + border_radius, self.labyrinth_size + self.button_height_size * 8.9 // 12, button_width - 10 - 2 * border_radius,
-                                  self.button_height_size * 3 // 12))
-
-                pygame.draw.rect(self.screen, (44, 35, 59),
-                                 (self.size + num * button_width, self.labyrinth_size, button_width - 10,
-                                  self.button_height_size),
-                                 int(self.size * 0.3), border_radius=20)
+                self.screen.blit(VectorGraphics.surface_button(button_width - 10, self.button_height_size),
+                                 (self.size + num * button_width, self.labyrinth_size))
 
                 text_surface = self.font.render(button["name"], True, (44, 35, 59))
             self.screen.blit(text_surface,
                              (self.size + num * button_width + button_width / 2 - text_surface.get_width() / 2 - 5,
                               self.labyrinth_size + self.button_height_size / 2 - text_surface.get_height() / 2))
+
+    # <--- Buttons functions --->
+    def button1_training(self):
+        Sounds.button_train_sound()
+        del self.buttons[0]
+        self.neural_network_class.auto_generate_training()
+
+    def button2_switch(self):
+        Sounds.button_switch_sound(self.network_bool)
+        self.network_bool = not self.network_bool
+        self.buttons[-1]["name"] = "Вимкнути нейромережу" if self.network_bool else "Увімкнути нейромережу"
 
     # <--- Mouse event --->
     def mouse_motion(self, position):
@@ -263,7 +212,8 @@ class GUI2D:
             self.currentSize = self.originSize
             self.detect = False
 
-        if self.size <= mouse_x <= self.width - self.size and self.labyrinth_size <= mouse_y <= self.height - self.size:
+        if self.size <= mouse_x <= self.width - self.size and \
+                self.labyrinth_size <= mouse_y <= self.height - self.size * 3:
             button_width = (self.labyrinth_size - self.size * 2 + 10) / len(self.buttons)
             for num in range(len(self.buttons)):
                 start_x = self.size + num * button_width
@@ -277,8 +227,8 @@ class GUI2D:
         if two_size <= mouse_x <= self.width - two_size and two_size <= mouse_y <= self.labyrinth_size - two_size:
             for row in range(len(self.labyrinth)):
                 for col in range(len(self.labyrinth[row])):
-                    x = (col + 1) * self.size  # (self.width - len(self.labyrinth) * self.size) / 2
-                    y = (row + 1) * self.size  # (self.height - len(self.labyrinth) * self.size) / 2
+                    x = (col + 1) * self.size
+                    y = (row + 1) * self.size
                     if x <= mouse_x <= x + self.size and y <= mouse_y <= y + self.size:
                         self.mouse_in_labyrinth = [row - 1, col - 1]
         else:
@@ -352,25 +302,17 @@ class GUI2D:
 
         player_move[get_ans]()
 
+    def tics(self):
+        # CIRCLE
+        if self.radius_decreasing:
+            self.circle_radius -= self.size * 0.3 / 20
+            if self.circle_radius <= 0:
+                self.radius_decreasing = False
 
-    def display_score(self):
-        # display score
-        score = self.font.render(f"score: {str(self.player.point.score)}", True, self.player.point.color_of_score)
-        text_rect = score.get_rect()
-        text_rect.center = (self.width / 2, self.height - 25)
-        self.screen.blit(score, text_rect)
-
-        # display the best score
-        best_score = self.font.render(f"best score: {str(self.player.point.best_score)}", True, BLACK)
-        text_rect = best_score.get_rect()
-        text_rect.center = (100, self.height - 25)
-        self.screen.blit(best_score, text_rect)
-
-        #dispaly count of victory
-        victories = self.font.render(f"victories: {str(self.player.point.count_of_victories)}", True, BLACK)
-        text_rect = best_score.get_rect()
-        text_rect.center = (self.width-100, self.height - 25)
-        self.screen.blit(victories, text_rect)
+        else:
+            self.circle_radius += self.size * 0.3 / 20
+            if self.circle_radius >= self.size / 2 - 1:
+                self.radius_decreasing = True
 
     # <--- Run game --->
     def run(self):
@@ -397,29 +339,13 @@ class GUI2D:
 
             if self.network_bool:
                 self.run_neural_network()
-            self.player.point.time+=1
+            self.player.point.time += 1
             self.player.is_move()
 
             # some code here
             self.draw()
 
-            # CIRCLE
-            if self.radius_decreasing:
-                self.circle_radius -= self.size * 0.3 / 20
-                # если радиус достиг 0 или меньше, меняем направление
-                if self.circle_radius <= 0:
-                    self.radius_decreasing = False
-
-            else:
-                self.circle_radius += self.size * 0.3 / 20
-                # если радиус достиг максимального значения, меняем направление
-                if self.circle_radius >= self.size / 2 - 1:
-                    self.radius_decreasing = True
-
-            self.display_score()
-
-
-
+            self.tics()
 
             pygame.display.update()
             # fps on screen

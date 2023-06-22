@@ -38,11 +38,11 @@ class NeuralNetwork:
 
     @staticmethod
     def convert_to_right(dataset):
-        # Подготовка данных
+        # Підготовка даних
         features = np.array([data for data, _ in dataset]) / 10
         labels = np.array([label - 1 for _, label in dataset])  # Приведение меток к нумерации с 0
 
-        # Преобразование меток в one-hot кодировку
+        # Перетворення міток в one-hot кодування
         labels = tf.keras.utils.to_categorical(labels, num_classes=4)
 
         return tuple([features, labels])
@@ -59,7 +59,7 @@ class NeuralNetwork:
     def generate_ans(self, data):
         data = np.array([data]) / 10
         prediction = self.model.predict(data)
-        predicted_label = np.argmax(prediction) + 1  # Приведение метки к исходной нумерации
+        predicted_label = np.argmax(prediction) + 1  # Приведення мітки до вихідної нумерації
         return predicted_label
 
 

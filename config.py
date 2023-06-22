@@ -3,7 +3,7 @@
 BLOCK_SIZE = 20
 SCALE = 25
 
-# size of window
+# size of window panel
 FRAME = 5
 
 # colors
@@ -14,10 +14,3 @@ DARK_GRAY = (107, 132, 175)
 
 # title of window
 TITLE = "Labyrinth"
-
-# temporary variable
-BUTTONS = [
-    {"name": "Кнопка 1", "func": lambda: print(1)},
-    {"name": "Кнопка 2", "func": lambda: print(2)},
-    {"name": "Кнопка 3", "func": lambda: print(3)},
-]

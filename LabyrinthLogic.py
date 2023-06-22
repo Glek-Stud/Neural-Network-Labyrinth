@@ -1,18 +1,13 @@
-import pygame.time
-
-import sounds
-from utils import set_logger
 import random
-from sounds import Sounds
+from sound.sounds import Sounds
+
 
 class LabyrinthLogic:
 
     def __init__(self, scale: int = 5):
         self.border_labyrinth = []
-        self.logger = set_logger("Labyrinth Logic")
         self.scale = scale
         self.labyrinth = [[0] * scale for _ in range(scale)]
-
 
     def get_point(self, y: int = 0, x: int = 1):
         return Point(self, y, x)
@@ -89,8 +84,7 @@ class Point:
 
         # score
         self.score = 0
-        self.color_of_score = (0,0,0)
-
+        self.color_of_score = (0, 0, 0)
 
         self.best_score = 0
 
@@ -99,6 +93,7 @@ class Point:
         self.time = 51
         self.max_time = 30
         self.finished = False
+
     def up(self):
         if self.y - 1 < 0 or self.b_labyrinth[self.y - 1][self.x] in self.walls:
             return False
@@ -165,7 +160,7 @@ class Player:
         self.point = point
         self.labyrinth_logic = labyrinth_logic
         self.b_labyrinth = labyrinth_logic.border_labyrinth
-        self.rigth = True
+        self.right = True
         self.sound = Sounds()
         self.can_move = True
 
@@ -176,12 +171,11 @@ class Player:
         self.sound.end_game_sound()
         self.point.time = -50
 
-
     def finish(self):
-        if self.point.score>self.point.best_score:
+        if self.point.score > self.point.best_score:
             self.point.best_score = self.point.score
         self.point.score = 0
-        self.point.count_of_victories+=1
+        self.point.count_of_victories += 1
         self.point.finished = False
         self.can_move = False
         self.reset()
@@ -191,7 +185,7 @@ class Player:
 
         def wrapper_function(self, *args, **kwargs):
             result = function_move(self, *args, **kwargs)
-            if self.point.x == self.point.scale and self.point.y == self.point.scale+1:
+            if self.point.x == self.point.scale and self.point.y == self.point.scale + 1:
                 self.finish()
             return result
 
@@ -203,7 +197,6 @@ class Player:
             self.can_move = True
             return False
         return True
-
 
     @decorator_check_finish
     def move_up(self):
@@ -217,16 +210,17 @@ class Player:
 
                     self.b_labyrinth[self.point.y + 1][self.point.x] = 6
                     self.point.score -= 2
-                    self.point.color_of_score = (255,0,0)
+                    self.point.color_of_score = (255, 0, 0)
                 else:
                     self.b_labyrinth[self.point.y + 1][self.point.x] = 5
                     self.point.score += 1
                     self.point.color_of_score = (0, 150, 0)
 
-                if self.rigth:
+                if self.right:
                     self.b_labyrinth[self.point.y][self.point.x] = 7
                 else:
                     self.b_labyrinth[self.point.y][self.point.x] = 8
+
     @decorator_check_finish
     def move_down(self):
         if self.first_call:
@@ -254,7 +248,7 @@ class Player:
                         self.b_labyrinth[self.point.y - 1][self.point.x] = 5
                         self.point.score += 1
                         self.point.color_of_score = (0, 150, 0)
-                    if self.rigth:
+                    if self.right:
                         self.b_labyrinth[self.point.y][self.point.x] = 7
                     else:
                         self.b_labyrinth[self.point.y][self.point.x] = 8
@@ -266,7 +260,7 @@ class Player:
                 if not self.is_move():
                     self.sound.step_sound()
                 self.point.time = 0
-                self.rigth=True
+                self.right = True
                 if self.b_labyrinth[self.point.y][self.point.x] == 5:
                     self.b_labyrinth[self.point.y][self.point.x - 1] = 6
                     self.point.score -= 2
@@ -276,7 +270,7 @@ class Player:
                     self.b_labyrinth[self.point.y][self.point.x - 1] = 5
                     self.point.score += 1
                     self.point.color_of_score = (0, 150, 0)
-                if self.rigth:
+                if self.right:
                     self.b_labyrinth[self.point.y][self.point.x] = 7
                 else:
                     self.b_labyrinth[self.point.y][self.point.x] = 8
@@ -288,7 +282,7 @@ class Player:
                 if not self.is_move():
                     self.sound.step_sound()
                 self.point.time = 0
-                self.rigth = False
+                self.right = False
                 if self.b_labyrinth[self.point.y][self.point.x] == 5:
                     self.b_labyrinth[self.point.y][self.point.x + 1] = 6
                     self.point.score -= 2
@@ -299,7 +293,7 @@ class Player:
                     self.point.score += 1
                     self.point.color_of_score = (0, 150, 0)
 
-                if self.rigth:
+                if self.right:
                     self.b_labyrinth[self.point.y][self.point.x] = 7
                 else:
                     self.b_labyrinth[self.point.y][self.point.x] = 8
