@@ -83,8 +83,8 @@ class GUI2D:
 
         self.screen = pygame.display.set_mode((self.width, self.height), flags=pygame.NOFRAME | pygame.DOUBLEBUF)
 
-        self.font = pygame.font.Font(None, int(self.size * 1.4))
-        self.bold_font = pygame.font.Font(None, int(self.size * 1.6))
+        self.font = pygame.font.Font(None, int(self.size * 1.35))
+        self.bold_font = pygame.font.Font(None, int(self.size * 1.5))
 
         # CIRCLE
         self.circle_radius = self.size / 2 - 1

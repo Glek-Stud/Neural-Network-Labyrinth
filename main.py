@@ -4,7 +4,7 @@ from config import BLOCK_SIZE, SCALE
 
 # <--- Функція запуску основної програми --->
 def start_function():
-    labyrinth_size = "min"
+    labyrinth_size = "middle"
     match labyrinth_size:
         case "min":
             GUI2D(49, 20).run()
